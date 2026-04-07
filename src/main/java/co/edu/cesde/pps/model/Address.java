@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * Campos:
  * - addressId: Identificador único de la dirección (PK)
- * - userId: Usuario propietario de la dirección (FK a User)
+ * - user: Usuario propietario de la dirección (N:1 con User)
  * - type: Tipo de dirección (SHIPPING o BILLING)
  * - line1: Línea 1 de dirección (calle, número)
  * - line2: Línea 2 de dirección (apartamento, piso) - opcional
@@ -21,14 +21,14 @@ import java.util.Objects;
  * - postalCode: Código postal
  * - isDefault: Indica si es la dirección por defecto del usuario
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con User (una dirección pertenece a un usuario)
+ * Relaciones:
+ * - N:1 con User (muchas direcciones pertenecen a un usuario)
  * - 1:N con Order (como shipping_address_id o billing_address_id)
  */
 public class Address {
 
     private Long addressId;
-    private Long userId;
+    private User user;
     private AddressType type;
     private String line1;
     private String line2;
@@ -43,9 +43,9 @@ public class Address {
     }
 
     // Constructor con campos obligatorios
-    public Address(Long userId, AddressType type, String line1, String city,
+    public Address(User user, AddressType type, String line1, String city,
                    String state, String country, String postalCode) {
-        this.userId = userId;
+        this.user = user;
         this.type = type;
         this.line1 = line1;
         this.city = city;
@@ -56,9 +56,9 @@ public class Address {
     }
 
     // Constructor completo (excepto ID autogenerado)
-    public Address(Long userId, AddressType type, String line1, String line2,
+    public Address(User user, AddressType type, String line1, String line2,
                    String city, String state, String country, String postalCode, Boolean isDefault) {
-        this.userId = userId;
+        this.user = user;
         this.type = type;
         this.line1 = line1;
         this.line2 = line2;
@@ -79,12 +79,12 @@ public class Address {
         this.addressId = addressId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public AddressType getType() {
@@ -172,7 +172,7 @@ public class Address {
     public String toString() {
         return "Address{" +
                 "addressId=" + addressId +
-                ", userId=" + userId +
+                ", userId=" + (user != null ? user.getUserId() : null) +
                 ", type=" + type +
                 ", line1='" + line1 + '\'' +
                 ", line2='" + line2 + '\'' +
