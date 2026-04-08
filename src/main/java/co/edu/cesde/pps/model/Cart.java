@@ -1,26 +1,30 @@
 package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.CartStatus;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Entidad Cart - Contenedor del carrito de compras.
  *
  * El carrito puede pertenecer a un usuario registrado o a un invitado (guest).
- * Siempre está asociado a una sesión mediante sessionId.
+ * Siempre está asociado a una sesión mediante session.
  *
  * Campos:
  * - cartId: Identificador único del carrito (PK)
- * - userId: Usuario propietario (FK a User) - NULLABLE para carritos de invitado
- * - sessionId: Sesión asociada (FK a UserSession) - siempre requerido
+ * - user: Usuario propietario (N:1 con User) - NULLABLE para carritos de invitado
+ * - session: Sesión asociada (N:1 con UserSession) - siempre requerido
  * - status: Estado del carrito (OPEN, CONVERTED, ABANDONED)
  * - createdAt: Fecha de creación del carrito
  * - updatedAt: Fecha de última actualización
+ * - items: Lista de items del carrito (1:N con CartItem)
  *
  * Comportamiento por tipo de usuario:
- * - Invitado: userId = NULL, sessionId = <session_id>
- * - Registrado: userId = <user_id>, sessionId = <session_id>
+ * - Invitado: user = NULL, session = <UserSession>
+ * - Registrado: user = <User>, session = <UserSession>
  *
  * Estados del carrito:
  * - OPEN: Carrito activo, usuario puede agregar/quitar items
@@ -33,16 +37,16 @@ import java.util.Objects;
  * abierto del usuario, se debe ejecutar el siguiente proceso de fusión (merge):
  *
  * Escenario:
- * - Carrito A: carrito del invitado (userId = NULL, status = OPEN)
- * - Carrito B: carrito del usuario registrado (userId = X, status = OPEN)
+ * - Carrito A: carrito del invitado (user = NULL, status = OPEN)
+ * - Carrito B: carrito del usuario registrado (user = User, status = OPEN)
  *
  * Proceso de Merge (implementar en capa de servicio - etapa 3):
- * 1. Identificar ambos carritos por sessionId y userId
+ * 1. Identificar ambos carritos por session y user
  * 2. Para cada CartItem del carrito invitado (A):
- *    a. Si el mismo productId existe en carrito usuario (B):
+ *    a. Si el mismo product existe en carrito usuario (B):
  *       - Sumar las cantidades (quantity)
  *       - Resolver conflicto de unitPrice (conservar más reciente o del usuario según política)
- *    b. Si el productId NO existe en carrito usuario (B):
+ *    b. Si el product NO existe en carrito usuario (B):
  *       - Mover/copiar el CartItem al carrito del usuario (B)
  * 3. Marcar carrito invitado (A) como status = ABANDONED
  * 4. Usuario continúa con carrito único (B) sin pérdida de productos
@@ -54,49 +58,56 @@ import java.util.Objects;
  *
  * Ver documentación completa en: documents_external/er_model_documentation.md - Sección 5
  *
- * Relaciones (futuro - etapa02):
+ * Relaciones:
  * - N:1 con User (opcional, nullable para invitados)
  * - N:1 con UserSession (obligatorio)
- * - 1:N con CartItem (items del carrito)
+ * - 1:N con CartItem (un carrito tiene muchos items)
  */
 public class Cart {
 
     private Long cartId;
-    private Long userId; // Nullable - NULL para invitados
-    private Long sessionId;
+    private User user; // Nullable - NULL para invitados
+    private UserSession session;
     private CartStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // Colección para relación 1:N
+    private List<CartItem> items;
+
     // Constructor vacío (requerido para JPA futuro)
     public Cart() {
+        this.items = new ArrayList<>();
     }
 
     // Constructor para carrito de invitado
-    public Cart(Long sessionId) {
-        this.userId = null; // Invitado
-        this.sessionId = sessionId;
+    public Cart(UserSession session) {
+        this.user = null; // Invitado
+        this.session = session;
         this.status = CartStatus.OPEN;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.items = new ArrayList<>();
     }
 
     // Constructor para carrito de usuario registrado
-    public Cart(Long userId, Long sessionId) {
-        this.userId = userId;
-        this.sessionId = sessionId;
+    public Cart(User user, UserSession session) {
+        this.user = user;
+        this.session = session;
         this.status = CartStatus.OPEN;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.items = new ArrayList<>();
     }
 
     // Constructor completo (excepto ID y timestamps autogenerados)
-    public Cart(Long userId, Long sessionId, CartStatus status) {
-        this.userId = userId;
-        this.sessionId = sessionId;
+    public Cart(User user, UserSession session, CartStatus status) {
+        this.user = user;
+        this.session = session;
         this.status = status != null ? status : CartStatus.OPEN;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.items = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -109,20 +120,20 @@ public class Cart {
         this.cartId = cartId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Long getSessionId() {
-        return sessionId;
+    public UserSession getSession() {
+        return session;
     }
 
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
+    public void setSession(UserSession session) {
+        this.session = session;
     }
 
     public CartStatus getStatus() {
@@ -149,19 +160,66 @@ public class Cart {
         this.updatedAt = updatedAt;
     }
 
-    // Método helper para actualizar timestamp de modificación
+    public List<CartItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<CartItem> items) {
+        this.items = items;
+    }
+
+    // Métodos de negocio
+
+    /**
+     * Actualiza timestamp de modificación
+     */
     public void touch() {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Método helper para verificar si es carrito de invitado
+    /**
+     * Verifica si es carrito de invitado
+     */
     public boolean isGuestCart() {
-        return userId == null;
+        return user == null;
     }
 
-    // Método helper para verificar si el carrito está activo
+    /**
+     * Verifica si el carrito está activo
+     */
     public boolean isOpen() {
         return status == CartStatus.OPEN;
+    }
+
+    /**
+     * Agrega un item al carrito manteniendo consistencia bidireccional
+     */
+    public void addItem(CartItem item) {
+        if (item != null && !this.items.contains(item)) {
+            this.items.add(item);
+            item.setCart(this);
+            this.touch();
+        }
+    }
+
+    /**
+     * Remueve un item del carrito manteniendo consistencia bidireccional
+     */
+    public void removeItem(CartItem item) {
+        if (item != null && this.items.contains(item)) {
+            this.items.remove(item);
+            item.setCart(null);
+            this.touch();
+        }
+    }
+
+    /**
+     * Calcula el total del carrito sumando todos los items
+     */
+    public BigDecimal calculateTotal() {
+        return items.stream()
+                .map(CartItem::calculateSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // equals y hashCode basados en ID
@@ -185,11 +243,13 @@ public class Cart {
     public String toString() {
         return "Cart{" +
                 "cartId=" + cartId +
-                ", userId=" + userId +
-                ", sessionId=" + sessionId +
+                ", userId=" + (user != null ? user.getUserId() : null) +
+                ", sessionId=" + (session != null ? session.getSessionId() : null) +
                 ", status=" + status +
                 ", isGuest=" + isGuestCart() +
                 ", isOpen=" + isOpen() +
+                ", itemsCount=" + (items != null ? items.size() : 0) +
+                ", total=" + calculateTotal() +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
