@@ -12,9 +12,9 @@ import java.util.Objects;
  *
  * Campos:
  * - paymentId: Identificador único del pago (PK)
- * - orderId: Orden asociada (FK a Order)
- * - paymentMethodId: Método de pago usado (FK a PaymentMethod)
- * - paymentStatusId: Estado del pago (FK a PaymentStatus)
+ * - order: Orden asociada (N:1 con Order)
+ * - paymentMethod: Método de pago usado (N:1 con PaymentMethod)
+ * - paymentStatus: Estado del pago (N:1 con PaymentStatus)
  * - amount: Monto del pago (BigDecimal para precisión)
  * - currency: Moneda del pago (USD, COP, EUR)
  * - providerReference: Referencia del proveedor de pagos (ej: ID de transacción de pasarela)
@@ -30,17 +30,17 @@ import java.util.Objects;
  * - Currency enum permite soportar múltiples monedas
  * - BigDecimal en amount para precisión monetaria
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Order (un pago pertenece a una orden)
- * - N:1 con PaymentMethod (método usado)
- * - N:1 con PaymentStatus (estado actual)
+ * Relaciones:
+ * - N:1 con Order (muchos pagos pertenecen a una orden)
+ * - N:1 con PaymentMethod (muchos pagos usan un método)
+ * - N:1 con PaymentStatus (muchos pagos tienen un estado)
  */
 public class Payment {
 
     private Long paymentId;
-    private Long orderId;
-    private Long paymentMethodId;
-    private Long paymentStatusId;
+    private Order order;
+    private PaymentMethod paymentMethod;
+    private PaymentStatus paymentStatus;
     private BigDecimal amount;
     private Currency currency;
     private String providerReference;
@@ -51,22 +51,22 @@ public class Payment {
     }
 
     // Constructor con campos obligatorios (paidAt NULL para pending)
-    public Payment(Long orderId, Long paymentMethodId, Long paymentStatusId,
+    public Payment(Order order, PaymentMethod paymentMethod, PaymentStatus paymentStatus,
                    BigDecimal amount, Currency currency) {
-        this.orderId = orderId;
-        this.paymentMethodId = paymentMethodId;
-        this.paymentStatusId = paymentStatusId;
+        this.order = order;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
         this.amount = amount;
         this.currency = currency;
         this.paidAt = null; // Se establece cuando el pago se completa
     }
 
     // Constructor completo (excepto ID autogenerado)
-    public Payment(Long orderId, Long paymentMethodId, Long paymentStatusId,
+    public Payment(Order order, PaymentMethod paymentMethod, PaymentStatus paymentStatus,
                    BigDecimal amount, Currency currency, String providerReference, LocalDateTime paidAt) {
-        this.orderId = orderId;
-        this.paymentMethodId = paymentMethodId;
-        this.paymentStatusId = paymentStatusId;
+        this.order = order;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
         this.amount = amount;
         this.currency = currency;
         this.providerReference = providerReference;
@@ -83,28 +83,28 @@ public class Payment {
         this.paymentId = paymentId;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
-    public Long getPaymentMethodId() {
-        return paymentMethodId;
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
-    public void setPaymentMethodId(Long paymentMethodId) {
-        this.paymentMethodId = paymentMethodId;
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
-    public Long getPaymentStatusId() {
-        return paymentStatusId;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setPaymentStatusId(Long paymentStatusId) {
-        this.paymentStatusId = paymentStatusId;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public BigDecimal getAmount() {
@@ -174,9 +174,9 @@ public class Payment {
     public String toString() {
         return "Payment{" +
                 "paymentId=" + paymentId +
-                ", orderId=" + orderId +
-                ", paymentMethodId=" + paymentMethodId +
-                ", paymentStatusId=" + paymentStatusId +
+                ", orderId=" + (order != null ? order.getOrderId() : null) +
+                ", paymentMethodId=" + (paymentMethod != null ? paymentMethod.getPaymentMethodId() : null) +
+                ", paymentStatusId=" + (paymentStatus != null ? paymentStatus.getPaymentStatusId() : null) +
                 ", amount=" + amount +
                 ", currency=" + currency +
                 ", providerReference='" + providerReference + '\'' +

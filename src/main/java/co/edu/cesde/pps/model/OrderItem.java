@@ -10,13 +10,13 @@ import java.util.Objects;
  *
  * Campos:
  * - orderItemId: Identificador único del item (PK)
- * - orderId: Orden a la que pertenece (FK a Order)
- * - productId: Producto comprado (FK a Product)
+ * - order: Orden a la que pertenece (N:1 con Order)
+ * - product: Producto comprado (N:1 con Product)
  * - quantity: Cantidad comprada
  * - unitPrice: Precio unitario al momento de la compra (histórico)
  * - lineTotal: Total de la línea (unitPrice * quantity)
  *
- * Restricción UNIQUE (orderId, productId):
+ * Restricción UNIQUE (order, product):
  * Un producto no puede aparecer duplicado en la misma orden. Si el usuario
  * compra el mismo producto dos veces en checkout, debe consolidarse en un
  * solo OrderItem con cantidad sumada.
@@ -30,15 +30,15 @@ import java.util.Objects;
  * Se puede calcular (unitPrice * quantity) o guardar para optimización.
  * Guardarlo facilita consultas y reportes sin recalcular.
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Order (un item pertenece a una orden)
- * - N:1 con Product (un item referencia a un producto)
+ * Relaciones:
+ * - N:1 con Order (muchos items pertenecen a una orden)
+ * - N:1 con Product (muchos items referencian a un producto)
  */
 public class OrderItem {
 
     private Long orderItemId;
-    private Long orderId;
-    private Long productId;
+    private Order order;
+    private Product product;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal lineTotal;
@@ -48,19 +48,19 @@ public class OrderItem {
     }
 
     // Constructor con campos obligatorios (lineTotal se calcula)
-    public OrderItem(Long orderId, Long productId, Integer quantity, BigDecimal unitPrice) {
-        this.orderId = orderId;
-        this.productId = productId;
+    public OrderItem(Order order, Product product, Integer quantity, BigDecimal unitPrice) {
+        this.order = order;
+        this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.lineTotal = calculateLineTotal();
     }
 
     // Constructor completo (excepto ID autogenerado)
-    public OrderItem(Long orderId, Long productId, Integer quantity,
+    public OrderItem(Order order, Product product, Integer quantity,
                      BigDecimal unitPrice, BigDecimal lineTotal) {
-        this.orderId = orderId;
-        this.productId = productId;
+        this.order = order;
+        this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.lineTotal = lineTotal != null ? lineTotal : calculateLineTotal();
@@ -76,20 +76,20 @@ public class OrderItem {
         this.orderItemId = orderItemId;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public Integer getQuantity() {
@@ -160,8 +160,8 @@ public class OrderItem {
     public String toString() {
         return "OrderItem{" +
                 "orderItemId=" + orderItemId +
-                ", orderId=" + orderId +
-                ", productId=" + productId +
+                ", orderId=" + (order != null ? order.getOrderId() : null) +
+                ", productId=" + (product != null ? product.getProductId() : null) +
                 ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice +
                 ", lineTotal=" + lineTotal +
