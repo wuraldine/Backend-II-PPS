@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * Campos:
  * - productId: Identificador único del producto (PK)
- * - categoryId: Categoría del producto (FK a Category)
+ * - category: Categoría del producto (N:1 con Category)
  * - sku: Stock Keeping Unit (UNIQUE) - código único de inventario
  * - name: Nombre del producto
  * - description: Descripción detallada del producto
@@ -23,15 +23,15 @@ import java.util.Objects;
  * - isActive permite ocultar productos sin borrarlos de la base de datos
  * - sku único facilita integración con sistemas de inventario externos
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Category (un producto pertenece a una categoría)
- * - 1:N con CartItem (producto puede estar en múltiples carritos)
- * - 1:N con OrderItem (producto puede estar en múltiples órdenes)
+ * Relaciones:
+ * - N:1 con Category (muchos productos pertenecen a una categoría)
+ * - 1:N con CartItem (un producto puede estar en múltiples carritos)
+ * - 1:N con OrderItem (un producto puede estar en múltiples órdenes)
  */
 public class Product {
 
     private Long productId;
-    private Long categoryId;
+    private Category category;
     private String sku;
     private String name;
     private String description;
@@ -45,8 +45,8 @@ public class Product {
     }
 
     // Constructor con campos obligatorios
-    public Product(Long categoryId, String sku, String name, BigDecimal price, Integer stockQty) {
-        this.categoryId = categoryId;
+    public Product(Category category, String sku, String name, BigDecimal price, Integer stockQty) {
+        this.category = category;
         this.sku = sku;
         this.name = name;
         this.price = price;
@@ -56,9 +56,9 @@ public class Product {
     }
 
     // Constructor completo (excepto ID y timestamp autogenerados)
-    public Product(Long categoryId, String sku, String name, String description,
+    public Product(Category category, String sku, String name, String description,
                    BigDecimal price, Integer stockQty, Boolean isActive) {
-        this.categoryId = categoryId;
+        this.category = category;
         this.sku = sku;
         this.name = name;
         this.description = description;
@@ -78,12 +78,12 @@ public class Product {
         this.productId = productId;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public String getSku() {
@@ -176,7 +176,7 @@ public class Product {
     public String toString() {
         return "Product{" +
                 "productId=" + productId +
-                ", categoryId=" + categoryId +
+                ", categoryId=" + (category != null ? category.getCategoryId() : null) +
                 ", sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
