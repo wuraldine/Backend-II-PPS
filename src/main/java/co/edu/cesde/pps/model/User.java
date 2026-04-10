@@ -2,6 +2,8 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.UserStatus;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,7 +13,7 @@ import java.util.Objects;
  *
  * Campos:
  * - userId: Identificador único del usuario (PK)
- * - roleId: Rol del usuario (FK a Role) - determina permisos
+ * - role: Rol del usuario (N:1 con Role) - determina permisos
  * - email: Email único del usuario (UNIQUE) - usado para login
  * - passwordHash: Hash de la contraseña (nunca texto plano)
  * - firstName: Nombre del usuario
@@ -19,18 +21,20 @@ import java.util.Objects;
  * - phone: Teléfono de contacto
  * - status: Estado del usuario (ACTIVE, INACTIVE, BLOCKED)
  * - createdAt: Fecha de creación de la cuenta
+ * - addresses: Lista de direcciones del usuario (1:N con Address)
+ * - sessions: Lista de sesiones del usuario (1:N con UserSession)
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Role
- * - 1:N con Address (direcciones del usuario)
- * - 1:N con UserSession (sesiones activas/históricas)
- * - 1:N con Cart (carritos del usuario)
- * - 1:N con Order (órdenes del usuario)
+ * Relaciones:
+ * - N:1 con Role (muchos usuarios tienen un rol)
+ * - 1:N con Address (un usuario tiene muchas direcciones)
+ * - 1:N con UserSession (un usuario tiene muchas sesiones)
+ * - 1:N con Cart (un usuario puede tener carritos históricos)
+ * - 1:N con Order (un usuario tiene muchas órdenes)
  */
 public class User {
 
     private Long userId;
-    private Long roleId;
+    private Role role;
     private String email;
     private String passwordHash;
     private String firstName;
@@ -39,25 +43,30 @@ public class User {
     private UserStatus status;
     private LocalDateTime createdAt;
 
+    // Colecciones para relaciones 1:N
+    private List<Address> addresses;
+
     // Constructor vacío (requerido para JPA futuro)
     public User() {
+        this.addresses = new ArrayList<>();
     }
 
     // Constructor con campos obligatorios
-    public User(Long roleId, String email, String passwordHash, String firstName, String lastName) {
-        this.roleId = roleId;
+    public User(Role role, String email, String passwordHash, String firstName, String lastName) {
+        this.role = role;
         this.email = email;
         this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
         this.status = UserStatus.ACTIVE; // Por defecto activo
         this.createdAt = LocalDateTime.now();
+        this.addresses = new ArrayList<>();
     }
 
     // Constructor completo (excepto ID y timestamp autogenerados)
-    public User(Long roleId, String email, String passwordHash, String firstName, String lastName,
+    public User(Role role, String email, String passwordHash, String firstName, String lastName,
                 String phone, UserStatus status) {
-        this.roleId = roleId;
+        this.role = role;
         this.email = email;
         this.passwordHash = passwordHash;
         this.firstName = firstName;
@@ -65,6 +74,7 @@ public class User {
         this.phone = phone;
         this.status = status != null ? status : UserStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
+        this.addresses = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -77,12 +87,12 @@ public class User {
         this.userId = userId;
     }
 
-    public Long getRoleId() {
-        return roleId;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getEmail() {
@@ -141,6 +151,53 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+
+    // Métodos de negocio para gestión bidireccional
+
+    /**
+     * Agrega una dirección al usuario manteniendo consistencia bidireccional
+     */
+    public void addAddress(Address address) {
+        if (address != null && !this.addresses.contains(address)) {
+            this.addresses.add(address);
+            address.setUser(this);
+        }
+    }
+
+    /**
+     * Remueve una dirección del usuario manteniendo consistencia bidireccional
+     */
+    public void removeAddress(Address address) {
+        if (address != null && this.addresses.contains(address)) {
+            this.addresses.remove(address);
+            address.setUser(null);
+        }
+    }
+
+    /**
+     * Obtiene la dirección por defecto del usuario
+     */
+    public Address getDefaultAddress() {
+        return addresses.stream()
+                .filter(Address::getIsDefault)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Obtiene el nombre completo del usuario
+     */
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     // equals y hashCode basados en ID
 
     @Override
@@ -156,19 +213,20 @@ public class User {
         return Objects.hash(userId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs)
+    // toString sin navegación a objetos relacionados (solo IDs y tamaño de colecciones)
 
     @Override
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", roleId=" + roleId +
+                ", role=" + (role != null ? role.getName() : "null") +
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", phone='" + phone + '\'' +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
+                ", addressesCount=" + (addresses != null ? addresses.size() : 0) +
                 '}';
     }
 }
