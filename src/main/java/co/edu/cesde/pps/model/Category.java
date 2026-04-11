@@ -1,47 +1,61 @@
 package co.edu.cesde.pps.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Entidad Category - Organiza el catálogo en categorías jerárquicas.
  *
- * Soporta estructura tipo árbol mediante auto-referencia (parent_id).
+ * Soporta estructura tipo árbol mediante auto-referencia (parent).
  * Ejemplo: "Computadores" → "Portátiles" → "Gaming"
  *
  * Campos:
  * - categoryId: Identificador único de la categoría (PK)
- * - parentId: Categoría padre (FK a Category) - NULLABLE para categorías raíz
+ * - parent: Categoría padre (N:1 con Category) - NULLABLE para categorías raíz
  * - name: Nombre de la categoría
  * - slug: URL-friendly identifier (UNIQUE) - para URLs amigables
+ * - subcategories: Lista de subcategorías (1:N con Category)
+ * - products: Lista de productos de esta categoría (1:N con Product)
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Category (auto-referencia para jerarquía)
- * - 1:N con Category (subcategorías)
- * - 1:N con Product (productos de esta categoría)
+ * Relaciones:
+ * - N:1 con Category (auto-referencia para jerarquía - muchas categorías tienen un padre)
+ * - 1:N con Category (una categoría tiene muchas subcategorías)
+ * - 1:N con Product (una categoría tiene muchos productos)
  */
 public class Category {
 
     private Long categoryId;
-    private Long parentId; // Nullable - NULL para categorías raíz
+    private Category parent; // Nullable - NULL para categorías raíz
     private String name;
     private String slug;
 
+    // Colecciones para relaciones 1:N
+    private List<Category> subcategories;
+    private List<Product> products;
+
     // Constructor vacío (requerido para JPA futuro)
     public Category() {
+        this.subcategories = new ArrayList<>();
+        this.products = new ArrayList<>();
     }
 
     // Constructor para categoría raíz (sin parent)
     public Category(String name, String slug) {
-        this.parentId = null; // Categoría raíz
+        this.parent = null; // Categoría raíz
         this.name = name;
         this.slug = slug;
+        this.subcategories = new ArrayList<>();
+        this.products = new ArrayList<>();
     }
 
     // Constructor para subcategoría (con parent)
-    public Category(Long parentId, String name, String slug) {
-        this.parentId = parentId;
+    public Category(Category parent, String name, String slug) {
+        this.parent = parent;
         this.name = name;
         this.slug = slug;
+        this.subcategories = new ArrayList<>();
+        this.products = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -54,12 +68,12 @@ public class Category {
         this.categoryId = categoryId;
     }
 
-    public Long getParentId() {
-        return parentId;
+    public Category getParent() {
+        return parent;
     }
 
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
+    public void setParent(Category parent) {
+        this.parent = parent;
     }
 
     public String getName() {
@@ -78,9 +92,49 @@ public class Category {
         this.slug = slug;
     }
 
-    // Método helper para verificar si es categoría raíz
+    public List<Category> getSubcategories() {
+        return subcategories;
+    }
+
+    public void setSubcategories(List<Category> subcategories) {
+        this.subcategories = subcategories;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    // Métodos de negocio para gestión bidireccional
+
+    /**
+     * Agrega una subcategoría manteniendo consistencia bidireccional
+     */
+    public void addSubcategory(Category subcategory) {
+        if (subcategory != null && !this.subcategories.contains(subcategory)) {
+            this.subcategories.add(subcategory);
+            subcategory.setParent(this);
+        }
+    }
+
+    /**
+     * Remueve una subcategoría manteniendo consistencia bidireccional
+     */
+    public void removeSubcategory(Category subcategory) {
+        if (subcategory != null && this.subcategories.contains(subcategory)) {
+            this.subcategories.remove(subcategory);
+            subcategory.setParent(null);
+        }
+    }
+
+    /**
+     * Verifica si es categoría raíz
+     */
     public boolean isRootCategory() {
-        return parentId == null;
+        return parent == null;
     }
 
     // equals y hashCode basados en ID
@@ -98,16 +152,18 @@ public class Category {
         return Objects.hash(categoryId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs)
+    // toString sin navegación a objetos relacionados (solo IDs y tamaño de colecciones)
 
     @Override
     public String toString() {
         return "Category{" +
                 "categoryId=" + categoryId +
-                ", parentId=" + parentId +
+                ", parentId=" + (parent != null ? parent.getCategoryId() : null) +
                 ", name='" + name + '\'' +
                 ", slug='" + slug + '\'' +
                 ", isRoot=" + isRootCategory() +
+                ", subcategoriesCount=" + (subcategories != null ? subcategories.size() : 0) +
+                ", productsCount=" + (products != null ? products.size() : 0) +
                 '}';
     }
 }
