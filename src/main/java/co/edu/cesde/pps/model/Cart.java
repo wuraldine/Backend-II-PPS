@@ -1,11 +1,13 @@
 package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.CartStatus;
+import co.edu.cesde.pps.util.CalculationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Entidad Cart - Contenedor del carrito de compras.
@@ -40,7 +42,7 @@ import java.util.Objects;
  * - Carrito A: carrito del invitado (user = NULL, status = OPEN)
  * - Carrito B: carrito del usuario registrado (user = User, status = OPEN)
  *
- * Proceso de Merge (implementar en capa de servicio - etapa 3):
+ * Proceso de Merge (implementar en capa de servicio - etapa 05):
  * 1. Identificar ambos carritos por session y user
  * 2. Para cada CartItem del carrito invitado (A):
  *    a. Si el mismo product existe en carrito usuario (B):
@@ -62,6 +64,9 @@ import java.util.Objects;
  * - N:1 con User (opcional, nullable para invitados)
  * - N:1 con UserSession (obligatorio)
  * - 1:N con CartItem (un carrito tiene muchos items)
+ *
+ * NOTA: Los métodos de gestión bidireccional (addItem, removeItem) fueron movidos
+ * a la capa de servicio (CartService) en etapa 05 para mantener el modelo limpio.
  */
 public class Cart {
 
@@ -168,14 +173,7 @@ public class Cart {
         this.items = items;
     }
 
-    // Métodos de negocio
-
-    /**
-     * Actualiza timestamp de modificación
-     */
-    public void touch() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    // Métodos helper de consulta (sin efectos secundarios)
 
     /**
      * Verifica si es carrito de invitado
@@ -192,34 +190,14 @@ public class Cart {
     }
 
     /**
-     * Agrega un item al carrito manteniendo consistencia bidireccional
-     */
-    public void addItem(CartItem item) {
-        if (item != null && !this.items.contains(item)) {
-            this.items.add(item);
-            item.setCart(this);
-            this.touch();
-        }
-    }
-
-    /**
-     * Remueve un item del carrito manteniendo consistencia bidireccional
-     */
-    public void removeItem(CartItem item) {
-        if (item != null && this.items.contains(item)) {
-            this.items.remove(item);
-            item.setCart(null);
-            this.touch();
-        }
-    }
-
-    /**
      * Calcula el total del carrito sumando todos los items
+     * Delegado a CalculationUtils para centralizar lógica de cálculo
      */
     public BigDecimal calculateTotal() {
-        return items.stream()
-                .map(CartItem::calculateSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<BigDecimal> subtotals = items.stream()
+            .map(CartItem::calculateSubtotal)
+            .collect(Collectors.toList());
+        return CalculationUtils.calculateCartTotal(subtotals);
     }
 
     // equals y hashCode basados en ID

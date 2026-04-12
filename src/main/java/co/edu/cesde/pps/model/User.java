@@ -30,6 +30,9 @@ import java.util.Objects;
  * - 1:N con UserSession (un usuario tiene muchas sesiones)
  * - 1:N con Cart (un usuario puede tener carritos históricos)
  * - 1:N con Order (un usuario tiene muchas órdenes)
+ *
+ * NOTA: Los métodos de gestión bidireccional (addAddress, removeAddress) fueron movidos
+ * a la capa de servicio (UserService) en etapa 05 para mantener el modelo limpio.
  */
 public class User {
 
@@ -159,27 +162,7 @@ public class User {
         this.addresses = addresses;
     }
 
-    // Métodos de negocio para gestión bidireccional
-
-    /**
-     * Agrega una dirección al usuario manteniendo consistencia bidireccional
-     */
-    public void addAddress(Address address) {
-        if (address != null && !this.addresses.contains(address)) {
-            this.addresses.add(address);
-            address.setUser(this);
-        }
-    }
-
-    /**
-     * Remueve una dirección del usuario manteniendo consistencia bidireccional
-     */
-    public void removeAddress(Address address) {
-        if (address != null && this.addresses.contains(address)) {
-            this.addresses.remove(address);
-            address.setUser(null);
-        }
-    }
+    // Métodos helper de consulta (sin efectos secundarios)
 
     /**
      * Obtiene la dirección por defecto del usuario

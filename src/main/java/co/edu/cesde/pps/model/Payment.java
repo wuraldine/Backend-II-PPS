@@ -1,6 +1,7 @@
 package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.Currency;
+import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -113,9 +114,7 @@ public class Payment {
 
     public void setAmount(BigDecimal amount) {
         // Validación: amount puede ser negativo (reembolsos), pero no null
-        if (amount == null) {
-            throw new IllegalArgumentException("Amount cannot be null");
-        }
+        ValidationUtils.validateNotNull(amount, "amount");
         this.amount = amount;
     }
 
