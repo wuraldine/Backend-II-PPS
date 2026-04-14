@@ -22,6 +22,9 @@ import java.util.Objects;
  * - N:1 con Category (auto-referencia para jerarquía - muchas categorías tienen un padre)
  * - 1:N con Category (una categoría tiene muchas subcategorías)
  * - 1:N con Product (una categoría tiene muchos productos)
+ *
+ * NOTA: Los métodos de gestión bidireccional (addSubcategory, removeSubcategory) fueron movidos
+ * a la capa de servicio (CategoryService) en etapa 05 para mantener el modelo limpio.
  */
 public class Category {
 
@@ -108,27 +111,7 @@ public class Category {
         this.products = products;
     }
 
-    // Métodos de negocio para gestión bidireccional
-
-    /**
-     * Agrega una subcategoría manteniendo consistencia bidireccional
-     */
-    public void addSubcategory(Category subcategory) {
-        if (subcategory != null && !this.subcategories.contains(subcategory)) {
-            this.subcategories.add(subcategory);
-            subcategory.setParent(this);
-        }
-    }
-
-    /**
-     * Remueve una subcategoría manteniendo consistencia bidireccional
-     */
-    public void removeSubcategory(Category subcategory) {
-        if (subcategory != null && this.subcategories.contains(subcategory)) {
-            this.subcategories.remove(subcategory);
-            subcategory.setParent(null);
-        }
-    }
+    // Métodos helper de consulta (sin efectos secundarios)
 
     /**
      * Verifica si es categoría raíz
