@@ -1,5 +1,7 @@
 package co.edu.cesde.pps.model;
 
+import co.edu.cesde.pps.util.CalculationUtils;
+import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -142,9 +144,7 @@ public class Order {
     }
 
     public void setSubtotal(BigDecimal subtotal) {
-        if (subtotal != null && subtotal.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Subtotal cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(subtotal, "subtotal");
         this.subtotal = subtotal;
     }
 
@@ -153,9 +153,7 @@ public class Order {
     }
 
     public void setTax(BigDecimal tax) {
-        if (tax != null && tax.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Tax cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(tax, "tax");
         this.tax = tax;
     }
 
@@ -164,9 +162,7 @@ public class Order {
     }
 
     public void setShippingCost(BigDecimal shippingCost) {
-        if (shippingCost != null && shippingCost.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Shipping cost cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(shippingCost, "shippingCost");
         this.shippingCost = shippingCost;
     }
 
@@ -175,9 +171,7 @@ public class Order {
     }
 
     public void setTotal(BigDecimal total) {
-        if (total != null && total.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Total cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(total, "total");
         this.total = total;
     }
 
@@ -191,10 +185,7 @@ public class Order {
 
     // Método helper para calcular total automáticamente
     public BigDecimal calculateTotal() {
-        BigDecimal sub = subtotal != null ? subtotal : BigDecimal.ZERO;
-        BigDecimal t = tax != null ? tax : BigDecimal.ZERO;
-        BigDecimal ship = shippingCost != null ? shippingCost : BigDecimal.ZERO;
-        return sub.add(t).add(ship);
+        return CalculationUtils.calculateOrderTotal(subtotal, tax, shippingCost);
     }
 
     // equals y hashCode basados en ID

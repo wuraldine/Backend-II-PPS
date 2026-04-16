@@ -1,5 +1,6 @@
 package co.edu.cesde.pps.model;
 
+import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -115,10 +116,7 @@ public class Product {
     }
 
     public void setPrice(BigDecimal price) {
-        // Validación básica: precio no puede ser negativo
-        if (price != null && price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(price, "price");
         this.price = price;
     }
 
@@ -127,10 +125,7 @@ public class Product {
     }
 
     public void setStockQty(Integer stockQty) {
-        // Validación básica: stock no puede ser negativo
-        if (stockQty != null && stockQty < 0) {
-            throw new IllegalArgumentException("Stock quantity cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(stockQty, "stockQty");
         this.stockQty = stockQty;
     }
 
