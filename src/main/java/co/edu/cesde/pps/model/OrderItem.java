@@ -1,5 +1,7 @@
 package co.edu.cesde.pps.model;
 
+import co.edu.cesde.pps.util.CalculationUtils;
+import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -97,10 +99,7 @@ public class OrderItem {
     }
 
     public void setQuantity(Integer quantity) {
-        // Validación básica: cantidad debe ser mayor a 0
-        if (quantity != null && quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
-        }
+        ValidationUtils.validatePositive(quantity, "quantity");
         this.quantity = quantity;
         // Recalcular lineTotal al cambiar quantity
         this.lineTotal = calculateLineTotal();
@@ -111,10 +110,7 @@ public class OrderItem {
     }
 
     public void setUnitPrice(BigDecimal unitPrice) {
-        // Validación básica: precio no puede ser negativo
-        if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Unit price cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(unitPrice, "unitPrice");
         this.unitPrice = unitPrice;
         // Recalcular lineTotal al cambiar unitPrice
         this.lineTotal = calculateLineTotal();
@@ -125,18 +121,13 @@ public class OrderItem {
     }
 
     public void setLineTotal(BigDecimal lineTotal) {
-        if (lineTotal != null && lineTotal.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Line total cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(lineTotal, "lineTotal");
         this.lineTotal = lineTotal;
     }
 
     // Método helper para calcular total de la línea
     public BigDecimal calculateLineTotal() {
-        if (unitPrice == null || quantity == null) {
-            return BigDecimal.ZERO;
-        }
-        return unitPrice.multiply(new BigDecimal(quantity));
+        return CalculationUtils.calculateOrderItemLineTotal(unitPrice, quantity);
     }
 
     // equals y hashCode basados en ID

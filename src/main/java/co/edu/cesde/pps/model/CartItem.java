@@ -1,5 +1,7 @@
 package co.edu.cesde.pps.model;
 
+import co.edu.cesde.pps.util.CalculationUtils;
+import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -92,10 +94,7 @@ public class CartItem {
     }
 
     public void setQuantity(Integer quantity) {
-        // Validación básica: cantidad debe ser mayor a 0
-        if (quantity != null && quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0");
-        }
+        ValidationUtils.validatePositive(quantity, "quantity");
         this.quantity = quantity;
     }
 
@@ -104,10 +103,7 @@ public class CartItem {
     }
 
     public void setUnitPrice(BigDecimal unitPrice) {
-        // Validación básica: precio no puede ser negativo
-        if (unitPrice != null && unitPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Unit price cannot be negative");
-        }
+        ValidationUtils.validateNonNegative(unitPrice, "unitPrice");
         this.unitPrice = unitPrice;
     }
 
@@ -121,10 +117,7 @@ public class CartItem {
 
     // Método helper para calcular subtotal del item
     public BigDecimal calculateSubtotal() {
-        if (unitPrice == null || quantity == null) {
-            return BigDecimal.ZERO;
-        }
-        return unitPrice.multiply(new BigDecimal(quantity));
+        return CalculationUtils.calculateCartItemSubtotal(unitPrice, quantity);
     }
 
     // equals y hashCode basados en ID
