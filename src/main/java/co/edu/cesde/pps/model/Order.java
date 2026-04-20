@@ -4,6 +4,8 @@ import co.edu.cesde.pps.util.CalculationUtils;
 import co.edu.cesde.pps.util.ValidationUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -54,8 +56,12 @@ public class Order {
     private BigDecimal total;
     private LocalDateTime createdAt;
 
+    // Colección para relación 1:N con OrderItem
+    private List<OrderItem> items;
+
     // Constructor vacío (requerido para JPA futuro)
     public Order() {
+        this.items = new ArrayList<>();
     }
 
     // Constructor con campos obligatorios
@@ -71,6 +77,7 @@ public class Order {
         this.shippingCost = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
+        this.items = new ArrayList<>();
     }
 
     // Constructor completo (excepto ID y timestamp autogenerado)
@@ -87,6 +94,7 @@ public class Order {
         this.shippingCost = shippingCost != null ? shippingCost : BigDecimal.ZERO;
         this.total = total != null ? total : BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();
+        this.items = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -181,6 +189,14 @@ public class Order {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 
     // Método helper para calcular total automáticamente
