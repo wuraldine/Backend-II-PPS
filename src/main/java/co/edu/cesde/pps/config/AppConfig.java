@@ -47,6 +47,9 @@ public class AppConfig {
     private static final int MAX_LOGIN_ATTEMPTS = 5;
     private static final int LOCKOUT_DURATION_MINUTES = 15;
 
+    // Configuración de Usuarios
+    private static final int MAX_ADDRESSES_PER_USER = 10;
+
     // Constructor privado para prevenir instanciación
     private AppConfig() {
         throw new AssertionError("AppConfig is a utility class and cannot be instantiated");
@@ -144,6 +147,12 @@ public class AppConfig {
 
     public static int getLockoutDurationMinutes() {
         return LOCKOUT_DURATION_MINUTES;
+    }
+
+    // Getters para configuraciones de usuarios
+
+    public static int getMaxAddressesPerUser() {
+        return MAX_ADDRESSES_PER_USER;
     }
 
     /**
