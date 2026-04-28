@@ -37,7 +37,9 @@
                       value="jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:pps_db}?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true"/>
 
             <!-- Credenciales -->
-            <property name="jakarta.persistence.jdbc.user" value="${DB_USER:root}"/>
+            <!-- IMPORTANTE: Las variables ${DB_USER} y ${DB_PASSWORD} deben definirse
+                 en variables de entorno o en el archivo .env -->
+            <property name="jakarta.persistence.jdbc.user" value="${DB_USER:user_pps}"/>
             <property name="jakarta.persistence.jdbc.password" value="${DB_PASSWORD:}"/>
 
             <!-- ============================================ -->
