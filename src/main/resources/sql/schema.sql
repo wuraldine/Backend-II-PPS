@@ -8,15 +8,37 @@
 -- las tablas automáticamente. Este script es de referencia
 -- y para ambientes donde se use DDL manual.
 --
--- Para ejecutar:
+-- Para ejecutar (como root):
 -- mysql -u root -p < schema.sql
+-- Password root: L@gp2O251975 (la O es mayúscula, no cero)
 -- ============================================
 
+-- ============================================
 -- Crear base de datos si no existe
+-- ============================================
 CREATE DATABASE IF NOT EXISTS pps_db
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
+-- ============================================
+-- Crear usuario de aplicación (no usar root)
+-- ============================================
+-- Eliminar usuario si existe (para re-ejecución del script)
+DROP USER IF EXISTS 'user_pps'@'localhost';
+
+-- Crear usuario con contraseña segura que cumple política MySQL
+-- Contraseña: User@2026! (Mayúscula, minúscula, número, símbolos especiales)
+CREATE USER 'user_pps'@'localhost' IDENTIFIED WITH mysql_native_password BY 'User@2026!';
+
+-- Otorgar todos los privilegios sobre la base de datos pps_db
+GRANT ALL PRIVILEGES ON pps_db.* TO 'user_pps'@'localhost' WITH GRANT OPTION;
+
+-- Aplicar cambios de privilegios
+FLUSH PRIVILEGES;
+
+-- ============================================
+-- Usar la base de datos
+-- ============================================
 USE pps_db;
 
 -- ============================================
