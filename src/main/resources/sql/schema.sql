@@ -10,7 +10,7 @@
 --
 -- Para ejecutar (como root):
 -- mysql -u root -p < schema.sql
--- Password root: L@gp2O251975 (la O es mayúscula, no cero)
+-- (Se solicitará la contraseña de root)
 -- ============================================
 
 -- ============================================
@@ -23,12 +23,20 @@ COLLATE utf8mb4_unicode_ci;
 -- ============================================
 -- Crear usuario de aplicación (no usar root)
 -- ============================================
+-- IMPORTANTE: Reemplazar 'YOUR_SECURE_PASSWORD' con una contraseña segura
+-- que cumpla con la política de seguridad de MySQL:
+-- - Mínimo 8 caracteres
+-- - Al menos una mayúscula
+-- - Al menos una minúscula
+-- - Al menos un número
+-- - Al menos un carácter especial (@, !, #, $, etc.)
+
 -- Eliminar usuario si existe (para re-ejecución del script)
 DROP USER IF EXISTS 'user_pps'@'localhost';
 
--- Crear usuario con contraseña segura que cumple política MySQL
--- Contraseña: User@2026! (Mayúscula, minúscula, número, símbolos especiales)
-CREATE USER 'user_pps'@'localhost' IDENTIFIED WITH mysql_native_password BY 'User@2026!';
+-- Crear usuario con contraseña segura
+-- NOTA: Cambiar 'YOUR_SECURE_PASSWORD' por la contraseña real
+CREATE USER 'user_pps'@'localhost' IDENTIFIED WITH mysql_native_password BY 'YOUR_SECURE_PASSWORD';
 
 -- Otorgar todos los privilegios sobre la base de datos pps_db
 GRANT ALL PRIVILEGES ON pps_db.* TO 'user_pps'@'localhost' WITH GRANT OPTION;
