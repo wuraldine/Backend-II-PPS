@@ -35,7 +35,9 @@ build/
 .DS_Store
 
 ### Environment & Logs ###
-.env*
+.env
+*.env
+!.env.example
 *.log
 
 ### Documentation (external reference) ###
