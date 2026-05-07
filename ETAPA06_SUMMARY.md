@@ -560,3 +560,24 @@ El proyecto está **100% listo para la Etapa 07**, donde se agregarán las anota
 **Proyecto:** Product Purchasing System - Backend II  
 **Institución:** CESDE  
 **Año:** 2026
+---
+## 🔄 ACTUALIZACIÓN: Logging SLF4J Implementado (10/02/2026)
+### **5 Archivos Java con Logging:**
+| Archivo | Logging Agregado |
+|---------|------------------|
+| JpaConfig.java | EntityManagerFactory lifecycle (INFO, DEBUG, ERROR) |
+| TransactionManager.java | Transaction traceability (DEBUG, WARN, ERROR) |
+| DatabaseConfig.java | Environment variables tracking (DEBUG, INFO, WARN) |
+| ValidationUtils.java | Validation failures (DEBUG) |
+| BusinessException.java | Centralized error logging (ERROR) |
+### **6 Commits Adicionales (7-12):**
+```bash
+7. feat: add SLF4J logging to JpaConfig for EntityManagerFactory lifecycle
+8. feat: add SLF4J logging to TransactionManager for transaction traceability
+9. feat: add SLF4J logging to DatabaseConfig for environment variables tracking
+10. feat: add SLF4J logging to ValidationUtils for validation failures tracking
+11. feat: add SLF4J logging to BusinessException for centralized error logging
+12. fix: add overloaded validateEmail and validatePhone methods for backward compatibility
+```
+**Total commits etapa06:** 12 (6 configuración + 6 logging)
+**Beneficios:** Trazabilidad completa, diagnóstico mejorado, compatible con Spring
