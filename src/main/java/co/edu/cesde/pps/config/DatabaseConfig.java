@@ -12,7 +12,7 @@ package co.edu.cesde.pps.config;
  * - DB_HOST: Host del servidor MySQL (default: localhost)
  * - DB_PORT: Puerto de MySQL (default: 3306)
  * - DB_NAME: Nombre de la base de datos (default: pps_db)
- * - DB_USER: Usuario de MySQL (default: root)
+ * - DB_USER: Usuario de MySQL (default: user_pps) - NO usar root en producción
  * - DB_PASSWORD: Contraseña de MySQL (default: vacío)
  * - DB_POOL_SIZE: Tamaño del pool de conexiones (default: 10)
  */
@@ -22,7 +22,7 @@ public class DatabaseConfig {
     private static final String DEFAULT_DB_HOST = "localhost";
     private static final String DEFAULT_DB_PORT = "3306";
     private static final String DEFAULT_DB_NAME = "pps_db";
-    private static final String DEFAULT_DB_USER = "root";
+    private static final String DEFAULT_DB_USER = "user_pps"; // NO usar root
     private static final String DEFAULT_DB_PASSWORD = "";
 
     // Propiedades de Hibernate/JPA
