@@ -1,41 +1,18 @@
 package co.edu.cesde.pps.exception;
-
-/**
- * Excepción base para todos los errores de negocio del sistema.
- *
- * Esta clase sirve como padre de todas las excepciones específicas del dominio,
- * permitiendo un manejo centralizado de errores de negocio.
- *
- * Las subclases deben proporcionar mensajes descriptivos y contexto específico
- * del error que representan.
- */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class BusinessException extends RuntimeException {
-
-    /**
-     * Constructor con mensaje de error
-     *
-     * @param message Descripción del error de negocio
-     */
+    private static final Logger log = LoggerFactory.getLogger(BusinessException.class);
     public BusinessException(String message) {
         super(message);
+        log.error("BusinessException thrown: {}", message);
     }
-
-    /**
-     * Constructor con mensaje y causa raíz
-     *
-     * @param message Descripción del error de negocio
-     * @param cause Excepción original que causó este error
-     */
     public BusinessException(String message, Throwable cause) {
         super(message, cause);
+        log.error("BusinessException thrown: {} - Cause: {}", message, cause.getMessage(), cause);
     }
-
-    /**
-     * Constructor solo con causa raíz
-     *
-     * @param cause Excepción original que causó este error
-     */
     public BusinessException(Throwable cause) {
         super(cause);
+        log.error("BusinessException thrown with cause: {}", cause.getMessage(), cause);
     }
 }
