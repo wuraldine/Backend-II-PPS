@@ -48,5 +48,5 @@ public class PaymentStatus {
     }
 
     // toString sin navegación a objetos relacionados
-    
+
 }
