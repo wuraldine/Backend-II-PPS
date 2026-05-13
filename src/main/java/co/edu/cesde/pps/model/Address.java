@@ -1,6 +1,5 @@
 package co.edu.cesde.pps.model;
 
-import co.edu.cesde.pps.enums.AddressType;
 import java.util.Objects;
 
 /**
