@@ -33,8 +33,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
-
 public class Address {
 
     private Long addressId;
@@ -48,9 +46,6 @@ public class Address {
     private String postalCode;
     @Builder.Default
     private Boolean isDefault = false;
-
-
-
 
     // equals y hashCode basados en ID
 
@@ -67,7 +62,8 @@ public class Address {
         return Objects.hash(addressId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs)
+    // toString personalizado sin navegación a objetos relacionados (solo IDs)
+
     @Override
     public String toString() {
         return "Address{" +
@@ -83,6 +79,4 @@ public class Address {
                 ", isDefault=" + isDefault +
                 '}';
     }
-
-    }
-
+}

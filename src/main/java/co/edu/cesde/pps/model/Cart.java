@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Entidad Cart - Contenedor del carrito de compras.
@@ -75,90 +74,42 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Cart {
 
     private Long cartId;
     private User user; // Nullable - NULL para invitados
     private UserSession session;
-    private CartStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Builder.Default
+    private CartStatus status = CartStatus.OPEN;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // Colección para relación 1:N
-    private List<CartItem> items;
+    @Builder.Default
+    private List<CartItem> items = new ArrayList<>();
 
-
-    // Constructor para carrito de invitado
-    public Cart(UserSession session) {
-        this.user = null; // Invitado
-        this.session = session;
-        this.status = CartStatus.OPEN;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.items = new ArrayList<>();
+    // Método helper para calcular total del carrito
+    public BigDecimal calculateTotal() {
+        List<BigDecimal> subtotals = new ArrayList<>();
+        for (CartItem item : items) {
+            subtotals.add(item.calculateSubtotal());
+        }
+        return CalculationUtils.calculateCartTotal(subtotals);
     }
 
-    // Constructor para carrito de usuario registrado
-    public Cart(User user, UserSession session) {
-        this.user = user;
-        this.session = session;
-        this.status = CartStatus.OPEN;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.items = new ArrayList<>();
-    }
-
-    // Constructor completo (excepto ID y timestamps autogenerados)
-    public Cart(User user, UserSession session, CartStatus status) {
-        this.user = user;
-        this.session = session;
-        this.status = status != null ? status : CartStatus.OPEN;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.items = new ArrayList<>();
-    }
-    // Ejemplo en Cart.java
-    @Override
-    public String toString() {
-        return "Cart{" +
-                "cartId=" + cartId +
-                ", userId=" + (user != null ? user.getUserId() : null) +
-                ", sessionId=" + (session != null ? session.getSessionId() : null) +
-                ", status=" + status +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", itemsCount=" + (items != null ? items.size() : 0) +
-                ", total=" + calculateTotal() +
-                '}';
-    }
-
-        /**
-        * Verifica si el carrito pertenece a un invitado (guest)
-        */
     public boolean isGuestCart() {
         return user == null;
     }
 
-    /**
-     * Verifica si el carrito está activo
-     */
+    // Método helper para verificar si el carrito está abierto
     public boolean isOpen() {
         return status == CartStatus.OPEN;
     }
 
-    /**
-     * Calcula el total del carrito sumando todos los items
-     * Delegado a CalculationUtils para centralizar lógica de cálculo
-     */
-    public BigDecimal calculateTotal() {
-        List<BigDecimal> subtotals = items.stream()
-            .map(CartItem::calculateSubtotal)
-            .collect(Collectors.toList());
-        return CalculationUtils.calculateCartTotal(subtotals);
-    }
-
     // equals y hashCode basados en ID
+
 
     @Override
     public boolean equals(Object o) {
@@ -173,5 +124,19 @@ public class Cart {
         return Objects.hash(cartId);
     }
 
+    // toString personalizado sin navegación a objetos relacionados (solo IDs y tamaño de colección)
 
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "cartId=" + cartId +
+                ", userId=" + (user != null ? user.getUserId() : null) +
+                ", sessionId=" + (session != null ? session.getSessionId() : null) +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", itemsCount=" + (items != null ? items.size() : 0) +
+                ", total=" + calculateTotal() +
+                '}';
+    }
 }
