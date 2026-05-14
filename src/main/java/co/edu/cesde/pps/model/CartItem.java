@@ -68,6 +68,16 @@ public class CartItem {
         this.unitPrice = unitPrice;
         this.addedAt = addedAt != null ? addedAt : LocalDateTime.now();
     }
+    // Ejemplo en CartItem.java
+    public void setQuantity(Integer quantity) {
+        ValidationUtils.validatePositive(quantity, "quantity");
+        this.quantity = quantity;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        ValidationUtils.validateNonNegative(unitPrice, "unitPrice");
+        this.unitPrice = unitPrice;
+    }
 
 
     // Método helper para calcular subtotal del item
