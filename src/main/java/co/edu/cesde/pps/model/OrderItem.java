@@ -43,7 +43,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class OrderItem {
 
     private Long orderItemId;
@@ -53,26 +52,26 @@ public class OrderItem {
     private BigDecimal unitPrice;
     private BigDecimal lineTotal;
 
+    // Setters personalizados con validación (override de Lombok)
 
-    // Constructor con campos obligatorios (lineTotal se calcula)
-    public OrderItem(Order order, Product product, Integer quantity, BigDecimal unitPrice) {
-        this.order = order;
-        this.product = product;
+    public void setQuantity(Integer quantity) {
+        ValidationUtils.validatePositive(quantity, "quantity");
         this.quantity = quantity;
-        this.unitPrice = unitPrice;
+        // Recalcular lineTotal al cambiar quantity
         this.lineTotal = calculateLineTotal();
     }
 
-    // Constructor completo (excepto ID autogenerado)
-    public OrderItem(Order order, Product product, Integer quantity,
-                     BigDecimal unitPrice, BigDecimal lineTotal) {
-        this.order = order;
-        this.product = product;
-        this.quantity = quantity;
+    public void setUnitPrice(BigDecimal unitPrice) {
+        ValidationUtils.validateNonNegative(unitPrice, "unitPrice");
         this.unitPrice = unitPrice;
-        this.lineTotal = lineTotal != null ? lineTotal : calculateLineTotal();
+        // Recalcular lineTotal al cambiar unitPrice
+        this.lineTotal = calculateLineTotal();
     }
 
+    public void setLineTotal(BigDecimal lineTotal) {
+        ValidationUtils.validateNonNegative(lineTotal, "lineTotal");
+        this.lineTotal = lineTotal;
+    }
 
     // Método helper para calcular total de la línea
     public BigDecimal calculateLineTotal() {
@@ -94,6 +93,17 @@ public class OrderItem {
         return Objects.hash(orderItemId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs)
+    // toString personalizado sin navegación a objetos relacionados (solo IDs)
 
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "orderItemId=" + orderItemId +
+                ", orderId=" + (order != null ? order.getOrderId() : null) +
+                ", productId=" + (product != null ? product.getProductId() : null) +
+                ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice +
+                ", lineTotal=" + lineTotal +
+                '}';
+    }
 }

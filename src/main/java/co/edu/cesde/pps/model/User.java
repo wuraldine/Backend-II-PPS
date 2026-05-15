@@ -41,7 +41,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class User {
 
     private Long userId;
@@ -51,39 +50,14 @@ public class User {
     private String firstName;
     private String lastName;
     private String phone;
-    private UserStatus status;
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     // Colecciones para relaciones 1:N
-    private List<Address> addresses;
-
-
-    // Constructor con campos obligatorios
-    public User(Role role, String email, String passwordHash, String firstName, String lastName) {
-        this.role = role;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.status = UserStatus.ACTIVE; // Por defecto activo
-        this.createdAt = LocalDateTime.now();
-        this.addresses = new ArrayList<>();
-    }
-
-    // Constructor completo (excepto ID y timestamp autogenerados)
-    public User(Role role, String email, String passwordHash, String firstName, String lastName,
-                String phone, UserStatus status) {
-        this.role = role;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-        this.status = status != null ? status : UserStatus.ACTIVE;
-        this.createdAt = LocalDateTime.now();
-        this.addresses = new ArrayList<>();
-    }
-
+    @Builder.Default
+    private List<Address> addresses = new ArrayList<>();
 
     // Métodos helper de consulta (sin efectos secundarios)
 
@@ -119,6 +93,20 @@ public class User {
         return Objects.hash(userId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs y tamaño de colecciones)
+    // toString personalizado sin navegación a objetos relacionados (solo IDs y tamaño de colecciones)
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", role=" + (role != null ? role.getName() : "null") +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", addressesCount=" + (addresses != null ? addresses.size() : 0) +
+                '}';
+    }
 }
