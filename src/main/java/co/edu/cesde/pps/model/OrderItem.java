@@ -2,6 +2,7 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.util.CalculationUtils;
 import co.edu.cesde.pps.util.ValidationUtils;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,8 +54,8 @@ public class OrderItem {
     @Column(name = "order_item_id")
     private Long orderItemId;
 
-    // Sin @ManyToOne todavía - se agregará en etapa09
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference("order-items")
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
