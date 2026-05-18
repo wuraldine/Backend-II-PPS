@@ -2,6 +2,7 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.CartStatus;
 import co.edu.cesde.pps.util.CalculationUtils;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -69,24 +70,38 @@ import java.util.Objects;
  * NOTA: Los métodos de gestión bidireccional (addItem, removeItem) fueron movidos
  * a la capa de servicio (CartService) en etapa 05 para mantener el modelo limpio.
  */
+@Entity
+@Table(name = "carts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Cart {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_id")
     private Long cartId;
+
+    @Column(name = "user_id") // Nullable - no @ManyToOne todavía
     private User user; // Nullable - NULL para invitados
+    @Column(name = "session_id", nullable = false) // No @ManyToOne todavía
     private UserSession session;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     @Builder.Default
     private CartStatus status = CartStatus.OPEN;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // Colección para relación 1:N
+    // Colección para relación 1:N - sin @OneToMany todavía
     @Builder.Default
     private List<CartItem> items = new ArrayList<>();
 
