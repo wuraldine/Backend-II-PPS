@@ -33,7 +33,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+
 
 public class Address {
 
@@ -46,35 +46,9 @@ public class Address {
     private String state;
     private String country;
     private String postalCode;
-    private Boolean isDefault;
+    @Builder.Default
+    private Boolean isDefault = false;
 
-
-    // Constructor con campos obligatorios
-    public Address(User user, AddressType type, String line1, String city,
-                   String state, String country, String postalCode) {
-        this.user = user;
-        this.type = type;
-        this.line1 = line1;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.postalCode = postalCode;
-        this.isDefault = false;
-    }
-
-    // Constructor completo (excepto ID autogenerado)
-    public Address(User user, AddressType type, String line1, String line2,
-                   String city, String state, String country, String postalCode, Boolean isDefault) {
-        this.user = user;
-        this.type = type;
-        this.line1 = line1;
-        this.line2 = line2;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.postalCode = postalCode;
-        this.isDefault = isDefault != null ? isDefault : false;
-    }
 
 
 
@@ -94,7 +68,21 @@ public class Address {
     }
 
     // toString sin navegación a objetos relacionados (solo IDs)
-
+    @Override
+    public String toString() {
+        return "Address{" +
+                "addressId=" + addressId +
+                ", userId=" + (user != null ? user.getUserId() : null) +
+                ", type=" + type +
+                ", line1='" + line1 + '\'' +
+                ", line2='" + line2 + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", country='" + country + '\'' +
+                ", postalCode='" + postalCode + '\'' +
+                ", isDefault=" + isDefault +
+                '}';
+    }
 
     }
 

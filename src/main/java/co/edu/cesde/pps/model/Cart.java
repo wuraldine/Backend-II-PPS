@@ -118,7 +118,20 @@ public class Cart {
         this.updatedAt = LocalDateTime.now();
         this.items = new ArrayList<>();
     }
-
+    // Ejemplo en Cart.java
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "cartId=" + cartId +
+                ", userId=" + (user != null ? user.getUserId() : null) +
+                ", sessionId=" + (session != null ? session.getSessionId() : null) +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", itemsCount=" + (items != null ? items.size() : 0) +
+                ", total=" + calculateTotal() +
+                '}';
+    }
 
         /**
         * Verifica si el carrito pertenece a un invitado (guest)
@@ -160,6 +173,5 @@ public class Cart {
         return Objects.hash(cartId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs y tamaño de colección)
 
 }
