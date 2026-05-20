@@ -73,10 +73,23 @@ public final class ValidationUtils {
             throw new ValidationException("email", email, "Invalid email format");
         }
     }
+    public static void validateEmail(String email, String fieldName) {
+        validateNotBlank(email, fieldName);
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            log.debug("Validation failed: Invalid email format for {}: {}", fieldName, email);
+            throw new ValidationException(fieldName, email, "Invalid email format");
+        }
+    }
     public static void validatePhone(String phone) {
         if (phone != null && !phone.trim().isEmpty() && !PHONE_PATTERN.matcher(phone).matches()) {
             log.debug("Validation failed: Invalid phone format: {}", phone);
             throw new ValidationException("phone", phone, "Invalid phone format");
+        }
+    }
+    public static void validatePhone(String phone, String fieldName) {
+        if (phone != null && !phone.trim().isEmpty() && !PHONE_PATTERN.matcher(phone).matches()) {
+            log.debug("Validation failed: Invalid phone format for {}: {}", fieldName, phone);
+            throw new ValidationException(fieldName, phone, "Invalid phone format");
         }
     }
     public static void validateLength(String value, int minLength, int maxLength, String fieldName) {
