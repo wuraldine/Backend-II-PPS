@@ -36,7 +36,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Product {
 
     private Long productId;
@@ -46,34 +45,22 @@ public class Product {
     private String description;
     private BigDecimal price;
     private Integer stockQty;
-    private Boolean isActive;
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private Boolean isActive = true;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
+    // Setters personalizados con validación (override de Lombok)
 
-    // Constructor con campos obligatorios
-    public Product(Category category, String sku, String name, BigDecimal price, Integer stockQty) {
-        this.category = category;
-        this.sku = sku;
-        this.name = name;
+    public void setPrice(BigDecimal price) {
+        ValidationUtils.validateNonNegative(price, "price");
         this.price = price;
-        this.stockQty = stockQty;
-        this.isActive = true; // Por defecto activo
-        this.createdAt = LocalDateTime.now();
     }
 
-    // Constructor completo (excepto ID y timestamp autogenerados)
-    public Product(Category category, String sku, String name, String description,
-                   BigDecimal price, Integer stockQty, Boolean isActive) {
-        this.category = category;
-        this.sku = sku;
-        this.name = name;
-        this.description = description;
-        this.price = price;
+    public void setStockQty(Integer stockQty) {
+        ValidationUtils.validateNonNegative(stockQty, "stockQty");
         this.stockQty = stockQty;
-        this.isActive = isActive != null ? isActive : true;
-        this.createdAt = LocalDateTime.now();
     }
-
 
     // Método helper para verificar disponibilidad
     public boolean isAvailable() {
@@ -95,6 +82,20 @@ public class Product {
         return Objects.hash(productId);
     }
 
-    // toString sin navegación a objetos relacionados (solo IDs)
+    // toString personalizado sin navegación a objetos relacionados (solo IDs)
 
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", categoryId=" + (category != null ? category.getCategoryId() : null) +
+                ", sku='" + sku + '\'' +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", stockQty=" + stockQty +
+                ", isActive=" + isActive +
+                ", isAvailable=" + isAvailable() +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }
