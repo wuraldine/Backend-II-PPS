@@ -9,6 +9,7 @@ import co.edu.cesde.pps.model.User;
 import co.edu.cesde.pps.util.ValidationUtils;
 import co.edu.cesde.pps.config.AppConfig;
 import co.edu.cesde.pps.enums.UserStatus;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
  * - Inyección de UserRepository
  * - Persistencia real
  */
+@Service
 public class UserService {
 
     private final UserMapper userMapper;
