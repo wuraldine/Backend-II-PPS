@@ -11,13 +11,13 @@ import java.util.Objects;
  *
  * Campos:
  * - cartItemId: Identificador único del item (PK)
- * - cartId: Carrito al que pertenece (FK a Cart)
- * - productId: Producto agregado (FK a Product)
+ * - cart: Carrito al que pertenece (N:1 con Cart)
+ * - product: Producto agregado (N:1 con Product)
  * - quantity: Cantidad del producto en el carrito
  * - unitPrice: Precio unitario congelado al agregar (BigDecimal para precisión)
  * - addedAt: Fecha en que se agregó el item al carrito
  *
- * Restricción UNIQUE (cartId, productId):
+ * Restricción UNIQUE (cart, product):
  * Un producto no puede aparecer duplicado en el mismo carrito. Si se agrega
  * el mismo producto dos veces, se debe actualizar la cantidad del item existente.
  *
@@ -26,15 +26,15 @@ import java.util.Objects;
  * Esto asegura consistencia si el precio del producto cambia mientras el
  * usuario navega. El precio se "congela" al agregar al carrito.
  *
- * Relaciones (futuro - etapa02):
- * - N:1 con Cart (un item pertenece a un carrito)
- * - N:1 con Product (un item referencia a un producto)
+ * Relaciones:
+ * - N:1 con Cart (muchos items pertenecen a un carrito)
+ * - N:1 con Product (muchos items referencian a un producto)
  */
 public class CartItem {
 
     private Long cartItemId;
-    private Long cartId;
-    private Long productId;
+    private Cart cart;
+    private Product product;
     private Integer quantity;
     private BigDecimal unitPrice;
     private LocalDateTime addedAt;
@@ -44,18 +44,18 @@ public class CartItem {
     }
 
     // Constructor con campos obligatorios
-    public CartItem(Long cartId, Long productId, Integer quantity, BigDecimal unitPrice) {
-        this.cartId = cartId;
-        this.productId = productId;
+    public CartItem(Cart cart, Product product, Integer quantity, BigDecimal unitPrice) {
+        this.cart = cart;
+        this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.addedAt = LocalDateTime.now();
     }
 
     // Constructor completo (excepto ID y timestamp autogenerado)
-    public CartItem(Long cartId, Long productId, Integer quantity, BigDecimal unitPrice, LocalDateTime addedAt) {
-        this.cartId = cartId;
-        this.productId = productId;
+    public CartItem(Cart cart, Product product, Integer quantity, BigDecimal unitPrice, LocalDateTime addedAt) {
+        this.cart = cart;
+        this.product = product;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.addedAt = addedAt != null ? addedAt : LocalDateTime.now();
@@ -71,20 +71,20 @@ public class CartItem {
         this.cartItemId = cartItemId;
     }
 
-    public Long getCartId() {
-        return cartId;
+    public Cart getCart() {
+        return cart;
     }
 
-    public void setCartId(Long cartId) {
-        this.cartId = cartId;
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public Integer getQuantity() {
@@ -148,8 +148,8 @@ public class CartItem {
     public String toString() {
         return "CartItem{" +
                 "cartItemId=" + cartItemId +
-                ", cartId=" + cartId +
-                ", productId=" + productId +
+                ", cartId=" + (cart != null ? cart.getCartId() : null) +
+                ", productId=" + (product != null ? product.getProductId() : null) +
                 ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice +
                 ", subtotal=" + calculateSubtotal() +
