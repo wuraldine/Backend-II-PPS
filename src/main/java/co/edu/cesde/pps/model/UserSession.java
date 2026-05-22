@@ -92,5 +92,5 @@ public class UserSession {
     }
 
     // toString sin navegación a objetos relacionados (solo IDs)
-    
+
 }
