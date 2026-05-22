@@ -9,31 +9,13 @@ import co.edu.cesde.pps.model.User;
 import co.edu.cesde.pps.repository.AddressRepository;
 import co.edu.cesde.pps.util.ValidationUtils;
 import co.edu.cesde.pps.config.AppConfig;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Servicio para gestión de direcciones de usuarios.
- *
- * Responsabilidades:
- * - CRUD de direcciones
- * - Gestión bidireccional (User <-> Address)
- * - Validaciones de direcciones
- * - Gestión de dirección por defecto (solo una puede ser default)
- * - Conversión Entity <-> DTO
- *
- * NOTA: En Etapa 06 se agregará:
- * - @Service annotation
- * - @Transactional
- * - Inyección de AddressRepository
- * - Persistencia real
- */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class AddressService {
 
     private final AddressMapper addressMapper;
@@ -49,18 +31,15 @@ public class AddressService {
     @Transactional
     public AddressDTO addAddress(Long userId, AddressDTO addressDTO) {
         User user = userService.findUserEntityOrThrow(userId);
-
         long currentCount = addressRepository.countByUser_UserId(userId);
 
         if (currentCount >= AppConfig.getMaxAddressesPerUser()) {
             throw new ValidationException("User has reached maximum number of addresses (" +
-                    AppConfig.getMaxAddressesPerUser() + ")");
+                AppConfig.getMaxAddressesPerUser() + ")");
         }
 
         validateAddressData(addressDTO);
-
         Address address = addressMapper.toEntity(addressDTO);
-
         user.getAddresses().add(address);
         address.setUser(user);
 
@@ -71,15 +50,12 @@ public class AddressService {
         }
 
         address = addressRepository.save(address);
-
         return addressMapper.toDTO(address);
     }
-
 
     @Transactional
     public AddressDTO updateAddress(Long addressId, AddressDTO addressDTO) {
         Address address = findAddressEntityOrThrow(addressId);
-
         validateAddressData(addressDTO);
 
         address.setType(addressDTO.getType());
@@ -96,10 +72,8 @@ public class AddressService {
         }
 
         address = addressRepository.save(address);
-
         return addressMapper.toDTO(address);
     }
-
 
     @Transactional
     public void deleteAddress(Long userId, Long addressId) {
@@ -112,7 +86,6 @@ public class AddressService {
 
         user.getAddresses().remove(address);
         addressRepository.delete(address);
-        address.setUser(null);
 
         if (Boolean.TRUE.equals(address.getIsDefault())) {
             List<Address> remainingAddresses = addressRepository.findByUser_UserId(userId);
@@ -124,32 +97,51 @@ public class AddressService {
         }
     }
 
+    @Transactional
+    public AddressDTO setDefaultAddress(Long userId, Long addressId) {
+        userService.findUserEntityOrThrow(userId);
+        Address address = findAddressEntityOrThrow(addressId);
+
+        if (!address.getUser().getUserId().equals(userId)) {
+            throw new ValidationException("Address does not belong to user");
+        }
+
+        unsetOtherDefaultAddresses(userId);
+        address.setIsDefault(true);
+        address = addressRepository.save(address);
+        return addressMapper.toDTO(address);
+    }
 
     public List<AddressDTO> findUserAddresses(Long userId) {
         userService.findUserEntityOrThrow(userId);
         return addressMapper.toDTOList(addressRepository.findByUser_UserId(userId));
     }
 
-    public Address findAddressEntityOrThrow(Long addressId) {
-        return addressRepository.findById(addressId)
-                .orElseThrow(() -> new EntityNotFoundException("Address", addressId));
-    }
-
-    private void unsetOtherDefaultAddresses(Long userId) {
-        List<Address> addresses = addressRepository.findByUser_UserId(userId);
-        addresses.forEach(a -> a.setIsDefault(false));
-    }
-
-    /**
-     * Busca una dirección por ID.
-     *
-     * @param addressId ID de la dirección
-     * @return AddressDTO
-     * @throws EntityNotFoundException si no existe
-     */
     public AddressDTO findById(Long addressId) {
         Address address = findAddressEntityOrThrow(addressId);
         return addressMapper.toDTO(address);
+    }
+
+    public AddressDTO findUserAddressById(Long userId, Long addressId) {
+        Address address = findAddressEntityOrThrow(addressId);
+        if (!address.getUser().getUserId().equals(userId)) {
+            throw new ValidationException("Address does not belong to user");
+        }
+        return addressMapper.toDTO(address);
+    }
+
+    @Transactional
+    public AddressDTO updateUserAddress(Long userId, Long addressId, AddressDTO addressDTO) {
+        Address address = findAddressEntityOrThrow(addressId);
+        if (!address.getUser().getUserId().equals(userId)) {
+            throw new ValidationException("Address does not belong to user");
+        }
+        return updateAddress(addressId, addressDTO);
+    }
+
+    public Address findAddressEntityOrThrow(Long addressId) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address", addressId));
     }
 
     private void validateAddressData(AddressDTO dto) {
@@ -161,5 +153,8 @@ public class AddressService {
         ValidationUtils.validateNotBlank(dto.getPostalCode(), "postalCode");
     }
 
-
+    private void unsetOtherDefaultAddresses(Long userId) {
+        List<Address> addresses = addressRepository.findByUser_UserId(userId);
+        addresses.forEach(a -> a.setIsDefault(false));
+    }
 }

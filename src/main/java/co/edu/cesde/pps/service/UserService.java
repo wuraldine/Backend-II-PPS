@@ -11,43 +11,26 @@ import co.edu.cesde.pps.repository.UserRepository;
 import co.edu.cesde.pps.util.ValidationUtils;
 import co.edu.cesde.pps.config.AppConfig;
 import co.edu.cesde.pps.enums.UserStatus;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Servicio para gestión de usuarios.
- *
- * Responsabilidades:
- * - CRUD de usuarios
- * - Registro con validaciones
- * - Búsqueda por diferentes criterios
- * - Conversión Entity <-> DTO
- *
- * NOTA: En Etapa 06 se agregará:
- * - @Service annotation
- * - @Transactional
- * - Inyección de UserRepository
- * - Persistencia real
- */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
-
     public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userMapper = new UserMapper();
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
-
 
     @Transactional
     public UserDTO registerUser(String email, String passwordHash, String firstName,
@@ -81,67 +64,67 @@ public class UserService {
                 .build();
 
         user = userRepository.save(user);
-
         return userMapper.toDTO(user);
     }
 
-    /**
-     * Busca usuario por ID.
-     *
-     * @param userId ID del usuario
-     * @return UserDTO
-     * @throws EntityNotFoundException si no existe
-     */
     public UserDTO findById(Long userId) {
-        User user = findUserEntityOrThrow(userId);
-        return userMapper.toDTO(user);
+        return userMapper.toDTO(findUserEntityOrThrow(userId));
     }
-
 
     public UserDTO findByEmail(String email) {
-        User user = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new EntityNotFoundException("User with email: " + email));
-
-        return userMapper.toDTO(user);
+        return userMapper.toDTO(findUserEntityByEmailOrThrow(email));
     }
 
     public List<UserDTO> findAllUsers() {
         return userMapper.toDTOList(userRepository.findAll());
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmailIgnoreCase(email);
+    @Transactional
+    public UserDTO createAdminUser(String email, String passwordHash, String firstName,
+                                   String lastName, String phone, String roleName, UserStatus status) {
+        ValidationUtils.validateEmail(email, "email");
+        ValidationUtils.validateNotBlank(passwordHash, "passwordHash");
+        ValidationUtils.validateMinLength(passwordHash, AppConfig.getMinPasswordLength(), "password");
+        ValidationUtils.validateNotBlank(firstName, "firstName");
+        ValidationUtils.validateNotBlank(lastName, "lastName");
+        ValidationUtils.validateNotNull(status, "status");
+
+        if (phone != null && !phone.isBlank()) {
+            ValidationUtils.validatePhone(phone, "phone");
+        }
+
+        String normalizedEmail = normalizeEmail(email);
+        if (existsByEmail(normalizedEmail)) {
+            throw new DuplicateEntityException("User", "email", normalizedEmail);
+        }
+
+        Role role = resolveRoleOrThrow(roleName);
+        User user = User.builder()
+                .role(role)
+                .email(normalizedEmail)
+                .passwordHash(passwordHash)
+                .firstName(firstName.trim())
+                .lastName(lastName.trim())
+                .phone(normalizePhone(phone))
+                .status(status)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return userMapper.toDTO(userRepository.save(user));
     }
 
-    public User findUserEntityOrThrow(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User", userId));
-    }
-
-    /**
-     * Actualiza perfil de usuario.
-     *
-     * @param userId ID del usuario
-     * @param firstName Nuevo nombre
-     * @param lastName Nuevo apellido
-     * @param phone Nuevo teléfono
-     * @return UserDTO actualizado
-     * @throws EntityNotFoundException si no existe
-     */
+    @Transactional
     public UserDTO updateProfile(Long userId, String firstName, String lastName, String phone) {
         User user = findUserEntityOrThrow(userId);
 
-        // Validaciones
         if (firstName != null) {
             ValidationUtils.validateNotBlank(firstName, "firstName");
             user.setFirstName(firstName.trim());
         }
-
         if (lastName != null) {
             ValidationUtils.validateNotBlank(lastName, "lastName");
             user.setLastName(lastName.trim());
         }
-
         if (phone != null) {
             if (!phone.isBlank()) {
                 ValidationUtils.validatePhone(phone, "phone");
@@ -151,23 +134,81 @@ public class UserService {
             }
         }
 
-        // TODO Etapa 06: userRepository.save(user);
-
-        return userMapper.toDTO(user);
+        return userMapper.toDTO(userRepository.save(user));
     }
 
-    /**
-     * Elimina un usuario (soft delete cambiando estado).
-     *
-     * @param userId ID del usuario
-     * @throws EntityNotFoundException si no existe
-     */
+    @Transactional
+    public UserDTO updateAdminUser(Long userId, String email, String firstName,
+                                   String lastName, String phone, String roleName, UserStatus status) {
+        User user = findUserEntityOrThrow(userId);
+
+        ValidationUtils.validateEmail(email, "email");
+        ValidationUtils.validateNotBlank(firstName, "firstName");
+        ValidationUtils.validateNotBlank(lastName, "lastName");
+        ValidationUtils.validateNotNull(status, "status");
+        if (phone != null && !phone.isBlank()) {
+            ValidationUtils.validatePhone(phone, "phone");
+        }
+
+        String normalizedEmail = normalizeEmail(email);
+        userRepository.findByEmailIgnoreCase(normalizedEmail)
+                .filter(existing -> !existing.getUserId().equals(userId))
+                .ifPresent(existing -> {
+                    throw new DuplicateEntityException("User", "email", normalizedEmail);
+                });
+
+        Role role = resolveRoleOrThrow(roleName);
+        user.setEmail(normalizedEmail);
+        user.setFirstName(firstName.trim());
+        user.setLastName(lastName.trim());
+        user.setPhone(normalizePhone(phone));
+        user.setRole(role);
+        user.setStatus(status);
+
+        return userMapper.toDTO(userRepository.save(user));
+    }
+
+    @Transactional
+    public void updatePasswordHash(Long userId, String passwordHash) {
+        ValidationUtils.validateNotBlank(passwordHash, "passwordHash");
+        User user = findUserEntityOrThrow(userId);
+        user.setPasswordHash(passwordHash);
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void deleteUser(Long userId) {
         User user = findUserEntityOrThrow(userId);
         user.setStatus(UserStatus.INACTIVE);
-        // TODO Etapa 06: userRepository.save(user);
+        userRepository.save(user);
     }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmailIgnoreCase(email);
+    }
 
+    public User findUserEntityByEmailOrThrow(String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new EntityNotFoundException("User with email: " + email));
+    }
 
+    public User findUserEntityOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User", userId));
+    }
+
+    private Role resolveRoleOrThrow(String roleName) {
+        ValidationUtils.validateNotBlank(roleName, "role");
+        String normalizedRole = roleName.trim().toUpperCase(Locale.ROOT);
+        return roleRepository.findByNameIgnoreCase(normalizedRole)
+                .orElseThrow(() -> new EntityNotFoundException("Role", normalizedRole));
+    }
+
+    private String normalizeEmail(String email) {
+        return email.toLowerCase(Locale.ROOT).trim();
+    }
+
+    private String normalizePhone(String phone) {
+        return phone == null || phone.isBlank() ? null : phone.trim();
+    }
 }

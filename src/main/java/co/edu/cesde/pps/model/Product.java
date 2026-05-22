@@ -8,30 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Entidad Product - Representa productos vendibles en la tienda.
- *
- * Campos:
- * - productId: Identificador único del producto (PK)
- * - category: Categoría del producto (N:1 con Category)
- * - sku: Stock Keeping Unit (UNIQUE) - código único de inventario
- * - name: Nombre del producto
- * - description: Descripción detallada del producto
- * - price: Precio actual del producto (BigDecimal para precisión monetaria)
- * - stockQty: Cantidad en stock/inventario
- * - isActive: Indica si el producto está activo (visible en catálogo)
- * - createdAt: Fecha de creación del producto
- *
- * Consideraciones de diseño:
- * - price usa BigDecimal para evitar errores de redondeo en cálculos monetarios
- * - isActive permite ocultar productos sin borrarlos de la base de datos
- * - sku único facilita integración con sistemas de inventario externos
- *
- * Relaciones:
- * - N:1 con Category (muchos productos pertenecen a una categoría)
- * - 1:N con CartItem (un producto puede estar en múltiples carritos)
- * - 1:N con OrderItem (un producto puede estar en múltiples órdenes)
- */
 @Entity
 @Table(name = "products")
 @Getter
@@ -40,6 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
@@ -49,24 +26,31 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(name = "sku", nullable = false, unique = true, length = 100)
+    @Column(name = "sku", nullable = false, unique = true, length = 50)
     private String sku;
+
     @Column(name = "name", nullable = false, length = 255)
     private String name;
-    @Column(name = "description", length = 1000)
+
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-    @Column(name = "price", nullable = false, precision = 19, scale = 4)
+
+    @Column(name = "image", length = 1000)
+    private String image;
+
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
     @Column(name = "stock_qty", nullable = false)
     private Integer stockQty;
+
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
-    @Column(name = "created_at", nullable = false)
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Setters personalizados con validación (override de Lombok)
 
     public void setPrice(BigDecimal price) {
         ValidationUtils.validateNonNegative(price, "price");
@@ -78,12 +62,9 @@ public class Product {
         this.stockQty = stockQty;
     }
 
-    // Método helper para verificar disponibilidad
     public boolean isAvailable() {
         return isActive != null && isActive && stockQty != null && stockQty > 0;
     }
-
-    // equals y hashCode basados en ID
 
     @Override
     public boolean equals(Object o) {
@@ -98,20 +79,13 @@ public class Product {
         return Objects.hash(productId);
     }
 
-    // toString personalizado sin navegación a objetos relacionados (solo IDs)
-
     @Override
     public String toString() {
-        return "Product{" +
-                "productId=" + productId +
+        return "Product{productId=" + productId +
                 ", categoryId=" + (category != null ? category.getCategoryId() : null) +
-                ", sku='" + sku + '\'' +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", stockQty=" + stockQty +
-                ", isActive=" + isActive +
-                ", isAvailable=" + isAvailable() +
-                ", createdAt=" + createdAt +
-                '}';
+                ", sku='" + sku + "', name='" + name + "', image='" + image +
+                "', price=" + price + ", stockQty=" + stockQty +
+                ", isActive=" + isActive + ", isAvailable=" + isAvailable() +
+                ", createdAt=" + createdAt + "}";
     }
 }
