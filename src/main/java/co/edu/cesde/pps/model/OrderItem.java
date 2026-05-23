@@ -2,6 +2,7 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.util.CalculationUtils;
 import co.edu.cesde.pps.util.ValidationUtils;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -38,6 +39,8 @@ import java.util.Objects;
  * - N:1 con Order (muchos items pertenecen a una orden)
  * - N:1 con Product (muchos items referencian a un producto)
  */
+@Entity
+@Table(name = "order_items")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -45,13 +48,23 @@ import java.util.Objects;
 @Builder
 public class OrderItem {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
     private Long orderItemId;
+
+    // Sin @ManyToOne todavía - se agregará en etapa09
     private Order order;
     private Product product;
-    private Integer quantity;
-    private BigDecimal unitPrice;
-    private BigDecimal lineTotal;
 
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitPrice;
+
+    @Column(name = "line_total", nullable = false, precision = 10, scale = 2)
+    private BigDecimal lineTotal;
     // Setters personalizados con validación (override de Lombok)
 
     public void setQuantity(Integer quantity) {

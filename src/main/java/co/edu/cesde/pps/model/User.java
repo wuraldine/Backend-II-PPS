@@ -1,6 +1,7 @@
 package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -49,39 +50,39 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "role_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(name = "first_name", length = 100)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
-    @Column(name = "last_name", length = 100)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "phone", length = 30)
+    @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "status", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Colecciones para relaciones 1:N
-    @Column(name = "addresses")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference("user-addresses")
     @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 
-    // Métodos helper de consulta (sin efectos secundarios)
 
     /**
      * Obtiene la dirección por defecto del usuario
