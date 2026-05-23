@@ -1,5 +1,6 @@
 package co.edu.cesde.pps.config;
 
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +13,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(WebConfig.class);
 
-    @Value("${app.cors.allowed-origins:http://localhost:5173, http://172.45.1.200:5173}")
+    @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        String[] origins = allowedOrigins.split(",");
+        String[] origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .toArray(String[]::new);
         log.info("CORS configurado para los orígenes: {}", allowedOrigins);
         registry.addMapping("/**")
                 .allowedOrigins(origins)
