@@ -21,18 +21,10 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class PaymentMethod {
 
     private Long paymentMethodId;
     private String name;
-
-
-    // Constructor con campos obligatorios
-    public PaymentMethod(String name) {
-        this.name = name;
-    }
-
 
     // equals y hashCode basados en ID
 
@@ -49,6 +41,13 @@ public class PaymentMethod {
         return Objects.hash(paymentMethodId);
     }
 
-    // toString sin navegación a objetos relacionados
+    // toString personalizado sin navegación a objetos relacionados
 
+    @Override
+    public String toString() {
+        return "PaymentMethod{" +
+                "paymentMethodId=" + paymentMethodId +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
