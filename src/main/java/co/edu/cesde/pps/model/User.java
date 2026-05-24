@@ -2,7 +2,7 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.UserStatus;
 import lombok.*;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,27 +36,48 @@ import java.util.Objects;
  * NOTA: Los métodos de gestión bidireccional (addAddress, removeAddress) fueron movidos
  * a la capa de servicio (UserService) en etapa 05 para mantener el modelo limpio.
  */
+@Entity
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class User {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
+
+    @Column(name = "role_id", nullable = false)
     private Role role;
+
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
+
+    @Column(name = "first_name", length = 100)
     private String firstName;
+
+    @Column(name = "last_name", length = 100)
     private String lastName;
+
+    @Column(name = "phone", length = 30)
     private String phone;
+
+    @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "created_at", nullable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // Colecciones para relaciones 1:N
     @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 
     // Métodos helper de consulta (sin efectos secundarios)
