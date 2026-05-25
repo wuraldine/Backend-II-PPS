@@ -76,6 +76,7 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // Colecciones para relaciones 1:N
+    @Column(name = "addresses")
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
