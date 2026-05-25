@@ -4,15 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * DTO para transferencia de datos de Producto.
- *
- * Se utiliza para:
- * - Listados de productos en catálogo
- * - Detalles de producto
- * - Búsqueda de productos
- * - Respuestas de API
- */
 public class ProductDTO {
 
     private Long productId;
@@ -21,6 +12,7 @@ public class ProductDTO {
     private String sku;
     private String name;
     private String description;
+    private String image;
     private BigDecimal price;
     private Integer stockQty;
     private Boolean isActive;
@@ -28,13 +20,11 @@ public class ProductDTO {
     private LocalDateTime createdAt;
     private String priceFormatted;
 
-    // Constructor vacío
     public ProductDTO() {
     }
 
-    // Constructor completo
     public ProductDTO(Long productId, Long categoryId, String categoryName, String sku,
-                      String name, String description, BigDecimal price, Integer stockQty,
+                      String name, String description, String image, BigDecimal price, Integer stockQty,
                       Boolean isActive, LocalDateTime createdAt) {
         this.productId = productId;
         this.categoryId = categoryId;
@@ -42,110 +32,52 @@ public class ProductDTO {
         this.sku = sku;
         this.name = name;
         this.description = description;
+        this.image = image;
         this.price = price;
         this.stockQty = stockQty;
         this.isActive = isActive;
         this.createdAt = createdAt;
-        this.isAvailable = isActive && stockQty > 0;
+        this.isAvailable = Boolean.TRUE.equals(isActive) && stockQty != null && stockQty > 0;
     }
 
-    // Getters y Setters
+    public Long getProductId() { return productId; }
+    public void setProductId(Long productId) { this.productId = productId; }
 
-    public Long getProductId() {
-        return productId;
-    }
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
+    public String getSku() { return sku; }
+    public void setSku(String sku) { this.sku = sku; }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
 
-    public String getSku() {
-        return sku;
-    }
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
 
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
+    public Integer getStockQty() { return stockQty; }
+    public void setStockQty(Integer stockQty) { this.stockQty = stockQty; }
 
-    public String getName() {
-        return name;
-    }
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public Boolean getIsAvailable() { return isAvailable; }
+    public void setIsAvailable(Boolean isAvailable) { this.isAvailable = isAvailable; }
 
-    public String getDescription() {
-        return description;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Integer getStockQty() {
-        return stockQty;
-    }
-
-    public void setStockQty(Integer stockQty) {
-        this.stockQty = stockQty;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public Boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getPriceFormatted() {
-        return priceFormatted;
-    }
-
-    public void setPriceFormatted(String priceFormatted) {
-        this.priceFormatted = priceFormatted;
-    }
+    public String getPriceFormatted() { return priceFormatted; }
+    public void setPriceFormatted(String priceFormatted) { this.priceFormatted = priceFormatted; }
 
     @Override
     public boolean equals(Object o) {
@@ -156,19 +88,11 @@ public class ProductDTO {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(productId);
-    }
+    public int hashCode() { return Objects.hash(productId); }
 
     @Override
     public String toString() {
-        return "ProductDTO{" +
-                "productId=" + productId +
-                ", sku='" + sku + '\'' +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", stockQty=" + stockQty +
-                ", isAvailable=" + isAvailable +
-                '}';
+        return "ProductDTO{productId=" + productId + ", sku='" + sku + "', name='" + name +
+               "', image='" + image + "', price=" + price + ", stockQty=" + stockQty + "}";
     }
 }

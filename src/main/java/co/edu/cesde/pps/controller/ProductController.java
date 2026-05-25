@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
-@Tag(name = "Productos",
-        description = "Endpoints públicos para consultar el catálogo de productos")
+
+@Tag(name = "Productos", description = "Endpoints públicos para consultar el catálogo de productos")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -23,6 +23,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     @Operation(
             summary = "Listar productos activos",
             description = "Retorna todos los productos activos disponibles en el catálogo"
@@ -33,7 +34,7 @@ public class ProductController {
                     description = "Lista de productos obtenida correctamente",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class))
+                            array = @ArraySchema(schema = @Schema(implementation = ProductDTO.class))
                     )
             ),
             @ApiResponse(
@@ -46,15 +47,14 @@ public class ProductController {
     public List<ProductDTO> getProducts() {
         return productService.findAllProducts();
     }
+
     @GetMapping("/{id}")
     public ProductDTO getProduct(@PathVariable Long id) {
         try {
             return productService.findById(id);
         } catch (EntityNotFoundException e) {
-            System.out.println("Error: " + e.getMessage());
             return null;
-        }catch (Exception e) {
-            System.out.println("Unexpected error: " + e.getMessage());
+        } catch (Exception e) {
             return null;
         }
     }

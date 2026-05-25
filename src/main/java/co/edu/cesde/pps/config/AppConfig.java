@@ -5,11 +5,6 @@ package co.edu.cesde.pps.config;
  *
  * Centraliza configuraciones que no son específicas de base de datos,
  * como límites de la aplicación, timeouts, configuraciones de negocio, etc.
- *
- * En futuras etapas, esta clase se puede expandir para usar:
- * - @Configuration (Spring)
- * - @PropertySource para cargar desde application.properties
- * - Variables de entorno
  */
 public class AppConfig {
 
@@ -55,8 +50,6 @@ public class AppConfig {
         throw new AssertionError("AppConfig is a utility class and cannot be instantiated");
     }
 
-    // Getters para configuraciones de sesión
-
     public static int getSessionTimeoutMinutes() {
         return SESSION_TIMEOUT_MINUTES;
     }
@@ -68,8 +61,6 @@ public class AppConfig {
     public static int getUserSessionTimeoutHours() {
         return USER_SESSION_TIMEOUT_HOURS;
     }
-
-    // Getters para configuraciones de carrito
 
     public static int getCartAbandonmentThresholdHours() {
         return CART_ABANDONMENT_THRESHOLD_HOURS;
@@ -83,8 +74,6 @@ public class AppConfig {
         return MAX_QUANTITY_PER_ITEM;
     }
 
-    // Getters para configuraciones de productos
-
     public static int getLowStockThreshold() {
         return LOW_STOCK_THRESHOLD;
     }
@@ -97,8 +86,6 @@ public class AppConfig {
         return MAX_PRODUCTS_PER_PAGE;
     }
 
-    // Getters para configuraciones de órdenes
-
     public static String getOrderNumberPrefix() {
         return ORDER_NUMBER_PREFIX;
     }
@@ -107,8 +94,6 @@ public class AppConfig {
         return ORDER_NUMBER_LENGTH;
     }
 
-    // Getters para configuraciones de paginación
-
     public static int getDefaultPageSize() {
         return DEFAULT_PAGE_SIZE;
     }
@@ -116,8 +101,6 @@ public class AppConfig {
     public static int getMaxPageSize() {
         return MAX_PAGE_SIZE;
     }
-
-    // Getters para configuraciones de impuestos y envío
 
     public static double getDefaultTaxRate() {
         return DEFAULT_TAX_RATE;
@@ -130,8 +113,6 @@ public class AppConfig {
     public static double getBaseShippingCost() {
         return BASE_SHIPPING_COST;
     }
-
-    // Getters para configuraciones de seguridad
 
     public static int getMinPasswordLength() {
         return MIN_PASSWORD_LENGTH;
@@ -149,54 +130,30 @@ public class AppConfig {
         return LOCKOUT_DURATION_MINUTES;
     }
 
-    // Getters para configuraciones de usuarios
-
     public static int getMaxAddressesPerUser() {
         return MAX_ADDRESSES_PER_USER;
     }
 
-    /**
-     * Obtiene el ambiente de ejecución desde variables de entorno.
-     * Por defecto: development
-     *
-     * @return environment (development, staging, production)
-     */
     public static String getEnvironment() {
+        String environment = System.getProperty("APP_ENVIRONMENT");
+        if (environment != null && !environment.isBlank()) {
+            return environment;
+        }
         return System.getenv().getOrDefault("APP_ENVIRONMENT", "development");
     }
 
-    /**
-     * Verifica si la aplicación está en modo producción.
-     *
-     * @return true si está en producción
-     */
     public static boolean isProduction() {
         return "production".equalsIgnoreCase(getEnvironment());
     }
 
-    /**
-     * Verifica si la aplicación está en modo desarrollo.
-     *
-     * @return true si está en desarrollo
-     */
     public static boolean isDevelopment() {
         return "development".equalsIgnoreCase(getEnvironment());
     }
 
-    /**
-     * Obtiene el nombre de la aplicación.
-     *
-     * @return nombre de la aplicación
-     */
     public static String getApplicationName() {
         return "Product Purchasing System";
     }
 
-    /**
-     * Obtiene la versión de la aplicación.
-     *
-     * @return versión
-     */
     public static String getVersion() {
         return "1.0-SNAPSHOT";
     }
