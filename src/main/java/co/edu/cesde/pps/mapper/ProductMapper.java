@@ -52,7 +52,7 @@ public class ProductMapper {
 
         // Campos formateados
         if (product.getPrice() != null) {
-            dto.setPriceFormatted(MoneyUtils.formatUSD(product.getPrice()));
+            dto.setPriceFormatted(MoneyUtils.formatCOP(product.getPrice()));
         }
 
         return dto;

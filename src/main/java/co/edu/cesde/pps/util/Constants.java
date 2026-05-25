@@ -193,7 +193,7 @@ public final class Constants {
     /**
      * Moneda por defecto del sistema
      */
-    public static final String DEFAULT_CURRENCY = "USD";
+    public static final String DEFAULT_CURRENCY = "COP";
 
     /**
      * Moneda secundaria (Colombia)

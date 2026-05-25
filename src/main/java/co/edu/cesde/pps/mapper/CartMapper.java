@@ -60,7 +60,7 @@ public class CartMapper {
         // Calcular y formatear total
         dto.setTotal(cart.calculateTotal()); // Método helper de Cart
         if (dto.getTotal() != null) {
-            dto.setTotalFormatted(MoneyUtils.formatUSD(dto.getTotal()));
+            dto.setTotalFormatted(MoneyUtils.formatCOP(dto.getTotal()));
         }
 
         return dto;
@@ -100,10 +100,10 @@ public class CartMapper {
 
         // Formatear valores
         if (dto.getUnitPrice() != null) {
-            dto.setUnitPriceFormatted(MoneyUtils.formatUSD(dto.getUnitPrice()));
+            dto.setUnitPriceFormatted(MoneyUtils.formatCOP(dto.getUnitPrice()));
         }
         if (dto.getSubtotal() != null) {
-            dto.setSubtotalFormatted(MoneyUtils.formatUSD(dto.getSubtotal()));
+            dto.setSubtotalFormatted(MoneyUtils.formatCOP(dto.getSubtotal()));
         }
 
         return dto;
