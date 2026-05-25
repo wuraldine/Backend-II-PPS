@@ -38,8 +38,11 @@ public class UserSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "session_id")
     private Long sessionId;
-    @Column(name = "user_id")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user; // Nullable - NULL para invitados
+
     @Column(name = "session_token", nullable = false, unique = true, length = 255)
     private String sessionToken;
     @Column(name = "created_at", nullable = false)
