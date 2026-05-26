@@ -11,7 +11,9 @@ public record CartItemResponse(
         String image,
         Integer quantity,
         BigDecimal unitPrice,
+        String unitPriceFormatted,
         BigDecimal lineTotal,
+        String lineTotalFormatted,
         Boolean productAvailable,
         Integer productStock,
         LocalDateTime addedAt

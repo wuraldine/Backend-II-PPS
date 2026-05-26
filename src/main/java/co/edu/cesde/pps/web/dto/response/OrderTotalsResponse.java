@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 
 public record OrderTotalsResponse(
         BigDecimal subtotal,
+        String subtotalFormatted,
         BigDecimal tax,
+        String taxFormatted,
         BigDecimal shipping,
-        BigDecimal total
+        String shippingFormatted,
+        BigDecimal total,
+        String totalFormatted
 ) {
 }

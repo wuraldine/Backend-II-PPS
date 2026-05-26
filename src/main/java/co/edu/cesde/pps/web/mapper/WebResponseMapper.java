@@ -20,6 +20,7 @@ import co.edu.cesde.pps.web.dto.response.OrderResponse;
 import co.edu.cesde.pps.web.dto.response.OrderTotalsResponse;
 import co.edu.cesde.pps.web.dto.response.ProductResponse;
 import co.edu.cesde.pps.web.dto.response.UserResponse;
+import co.edu.cesde.pps.util.MoneyUtils;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -128,6 +129,7 @@ public class WebResponseMapper {
                 dto.getDescription(),
                 dto.getImage(),
                 dto.getPrice(),
+                dto.getPrice() != null ? MoneyUtils.formatCOP(dto.getPrice()) : null,
                 dto.getStockQty(),
                 dto.getIsActive(),
                 dto.getIsAvailable(),
@@ -167,7 +169,13 @@ public class WebResponseMapper {
                 dto.getCreatedAt(),
                 dto.getUpdatedAt(),
                 items,
-                new CartSummaryResponse(itemsCount, subtotal, BigDecimal.ZERO, BigDecimal.ZERO, total)
+                new CartSummaryResponse(
+                        itemsCount,
+                        subtotal, MoneyUtils.formatCOP(subtotal),
+                        BigDecimal.ZERO, MoneyUtils.formatCOP(BigDecimal.ZERO),
+                        BigDecimal.ZERO, MoneyUtils.formatCOP(BigDecimal.ZERO),
+                        total, MoneyUtils.formatCOP(total)
+                )
         );
     }
 
@@ -184,7 +192,9 @@ public class WebResponseMapper {
                 dto.getProductImageUrl(),
                 dto.getQuantity(),
                 dto.getUnitPrice(),
+                dto.getUnitPrice() != null ? MoneyUtils.formatCOP(dto.getUnitPrice()) : null,
                 dto.getSubtotal(),
+                dto.getSubtotal() != null ? MoneyUtils.formatCOP(dto.getSubtotal()) : null,
                 dto.getProductAvailable(),
                 dto.getProductStock(),
                 dto.getAddedAt()
@@ -210,7 +220,12 @@ public class WebResponseMapper {
                 toAddressResponse(dto.getShippingAddress()),
                 toAddressResponse(dto.getBillingAddress()),
                 items,
-                new OrderTotalsResponse(dto.getSubtotal(), dto.getTax(), dto.getShippingCost(), dto.getTotal()),
+                new OrderTotalsResponse(
+                        dto.getSubtotal(), dto.getSubtotal() != null ? MoneyUtils.formatCOP(dto.getSubtotal()) : null,
+                        dto.getTax(), dto.getTax() != null ? MoneyUtils.formatCOP(dto.getTax()) : null,
+                        dto.getShippingCost(), dto.getShippingCost() != null ? MoneyUtils.formatCOP(dto.getShippingCost()) : null,
+                        dto.getTotal(), dto.getTotal() != null ? MoneyUtils.formatCOP(dto.getTotal()) : null
+                ),
                 dto.getCreatedAt()
         );
     }
@@ -232,7 +247,9 @@ public class WebResponseMapper {
                 dto.getProductImageUrl(),
                 dto.getQuantity(),
                 dto.getUnitPrice(),
-                dto.getLineTotal()
+                dto.getUnitPrice() != null ? MoneyUtils.formatCOP(dto.getUnitPrice()) : null,
+                dto.getLineTotal(),
+                dto.getLineTotal() != null ? MoneyUtils.formatCOP(dto.getLineTotal()) : null
         );
     }
 }

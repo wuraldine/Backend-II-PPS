@@ -10,6 +10,8 @@ public record OrderItemResponse(
         String image,
         Integer quantity,
         BigDecimal unitPrice,
-        BigDecimal lineTotal
+        String unitPriceFormatted,
+        BigDecimal lineTotal,
+        String lineTotalFormatted
 ) {
 }

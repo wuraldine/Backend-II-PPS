@@ -45,7 +45,7 @@ public class UserSession {
 
     @Column(name = "session_token", nullable = false, unique = true, length = 255)
     private String sessionToken;
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name = "expires_at")

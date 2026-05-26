@@ -5,8 +5,12 @@ import java.math.BigDecimal;
 public record CartSummaryResponse(
         Integer itemsCount,
         BigDecimal subtotal,
+        String subtotalFormatted,
         BigDecimal tax,
+        String taxFormatted,
         BigDecimal shipping,
-        BigDecimal total
+        String shippingFormatted,
+        BigDecimal total,
+        String totalFormatted
 ) {
 }

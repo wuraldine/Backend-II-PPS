@@ -12,6 +12,7 @@ public record ProductResponse(
         String description,
         String image,
         BigDecimal price,
+        String priceFormatted,
         Integer stockQty,
         Boolean isActive,
         Boolean isAvailable,

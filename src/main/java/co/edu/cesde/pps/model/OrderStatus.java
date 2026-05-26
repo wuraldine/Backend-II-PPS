@@ -16,7 +16,7 @@ import java.util.Objects;
  * - 1:N con Order (un estado puede aplicar a múltiples órdenes)
  */
 @Entity
-@Table(name="order_status")
+@Table(name="order_statuses")
 @Getter
 @Setter
 @NoArgsConstructor
