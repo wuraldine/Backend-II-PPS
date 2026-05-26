@@ -161,5 +161,5 @@ public class Cart {
     }
 
     // toString sin navegación a objetos relacionados (solo IDs y tamaño de colección)
-    
+
 }
