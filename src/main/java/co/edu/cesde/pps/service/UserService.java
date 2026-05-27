@@ -46,7 +46,7 @@ public class UserService {
         }
 
         if (existsByEmail(email)) {
-            throw new DuplicateEntityException("User", "email", email);
+            throw new DuplicateEntityException("Ya existe una cuenta registrada con el correo: " + email + ". Intenta iniciar sesión.");
         }
 
         Role defaultRole = roleRepository.findByNameIgnoreCase("CUSTOMER")

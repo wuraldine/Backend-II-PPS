@@ -5,6 +5,7 @@ import co.edu.cesde.pps.dto.CartDTO;
 import co.edu.cesde.pps.dto.UserDTO;
 import co.edu.cesde.pps.enums.UserStatus;
 import co.edu.cesde.pps.exception.AuthenticationException;
+import co.edu.cesde.pps.exception.EntityNotFoundException;
 import co.edu.cesde.pps.model.User;
 import co.edu.cesde.pps.model.UserSession;
 import co.edu.cesde.pps.security.PasswordHasher;
@@ -78,12 +79,17 @@ public class AuthApplicationService {
     public AuthSessionResponse login(LoginRequest request) {
         validateLoginRequest(request);
 
-        User user = userService.findUserEntityByEmailOrThrow(request.email());
+        User user;
+        try {
+            user = userService.findUserEntityByEmailOrThrow(request.email());
+        } catch (EntityNotFoundException e) {
+            throw new AuthenticationException("Correo o contraseña incorrectos, vuelva a intentarlo");
+        }
         if (user.getStatus() != UserStatus.ACTIVE) {
-            throw new AuthenticationException("User account is inactive");
+            throw new AuthenticationException("Tu cuenta está inactiva. Por favor contacta soporte.");
         }
         if (!passwordHasher.matches(request.password(), user.getPasswordHash())) {
-            throw new AuthenticationException("Invalid credentials");
+            throw new AuthenticationException("Contraseña incorrecta, vuelva a intentarlo");
         }
 
         UserSession session = userSessionService.createAuthenticatedSession(user);
