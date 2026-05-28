@@ -2,6 +2,7 @@ package co.edu.cesde.pps.model;
 
 import co.edu.cesde.pps.enums.CartStatus;
 import co.edu.cesde.pps.util.CalculationUtils;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -83,9 +84,12 @@ public class Cart {
     @Column(name = "cart_id")
     private Long cartId;
 
-    @Column(name = "user_id") // Nullable - no @ManyToOne todavía
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user; // Nullable - NULL para invitados
-    @Column(name = "session_id", nullable = false) // No @ManyToOne todavía
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
     private UserSession session;
 
     @Enumerated(EnumType.STRING)
@@ -101,7 +105,8 @@ public class Cart {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // Colección para relación 1:N - sin @OneToMany todavía
+    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY)
+    @JsonManagedReference("cart-items")
     @Builder.Default
     private List<CartItem> items = new ArrayList<>();
 

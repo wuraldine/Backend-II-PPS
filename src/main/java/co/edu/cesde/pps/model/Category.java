@@ -1,5 +1,7 @@
 package co.edu.cesde.pps.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,7 +45,9 @@ public class Category {
     @Column(name = "category_id")
     private Long categoryId;
 
-    // Sin @ManyToOne todavía - se agregará en etapa09
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    @JsonBackReference("category-parent")
     private Category parent; // Nullable - NULL para categorías raíz
 
     @Column(name = "name", nullable = false, length = 100)
@@ -52,12 +56,14 @@ public class Category {
     @Column(name = "slug", nullable = false, unique = true, length = 100)
     private String slug;
 
-    // Colecciones para relaciones 1:N - sin @OneToMany todavía
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @JsonManagedReference("category-parent")
     @Builder.Default
     private List<Category> subcategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Product> products = new ArrayList<>();
-
 
     // Métodos helper de consulta (sin efectos secundarios)
 
