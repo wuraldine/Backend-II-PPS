@@ -1,11 +1,18 @@
 package co.edu.cesde.pps.web.controller;
 
 import co.edu.cesde.pps.application.CartApplicationService;
+import co.edu.cesde.pps.web.dto.error.ApiErrorResponse;
 import co.edu.cesde.pps.web.dto.request.AddCartItemRequest;
 import co.edu.cesde.pps.web.dto.request.MergeGuestCartRequest;
 import co.edu.cesde.pps.web.dto.request.UpdateCartItemQuantityRequest;
 import co.edu.cesde.pps.web.dto.response.CartResponse;
 import co.edu.cesde.pps.web.security.CurrentSessionResolver;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Carrito", description = "Gestión del carrito de compras")
 @RestController
 @RequestMapping(ApiRoutes.CART)
 public class CartController {
@@ -38,6 +46,17 @@ public class CartController {
         return cartApplicationService.getCurrentCart(currentSessionResolver.resolveCurrentToken(authorizationHeader));
     }
 
+    @Operation(
+            summary = "Agregar producto al carrito",
+            description = "Requiere estar autenticado. Los invitados deben registrarse o iniciar sesión primero."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Producto agregado correctamente"),
+            @ApiResponse(responseCode = "401", description = "Debes registrarte o iniciar sesión para agregar productos al carrito",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Stock insuficiente o carrito en estado inválido",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
     @PostMapping("/items")
     public CartResponse addItem(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false)
                                 String authorizationHeader,

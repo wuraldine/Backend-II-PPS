@@ -104,6 +104,7 @@ public class OrderMapper {
             dto.setProductId(item.getProduct().getProductId());
             dto.setProductName(item.getProduct().getName());
             dto.setProductSku(item.getProduct().getSku());
+            dto.setProductImageUrl(item.getProduct().getImage());
         }
 
         dto.setQuantity(item.getQuantity());
