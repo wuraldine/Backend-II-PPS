@@ -66,16 +66,16 @@ public class OrderMapper {
 
         // Formatear valores monetarios
         if (dto.getSubtotal() != null) {
-            dto.setSubtotalFormatted(MoneyUtils.formatUSD(dto.getSubtotal()));
+            dto.setSubtotalFormatted(MoneyUtils.formatCOP(dto.getSubtotal()));
         }
         if (dto.getTax() != null) {
-            dto.setTaxFormatted(MoneyUtils.formatUSD(dto.getTax()));
+            dto.setTaxFormatted(MoneyUtils.formatCOP(dto.getTax()));
         }
         if (dto.getShippingCost() != null) {
-            dto.setShippingCostFormatted(MoneyUtils.formatUSD(dto.getShippingCost()));
+            dto.setShippingCostFormatted(MoneyUtils.formatCOP(dto.getShippingCost()));
         }
         if (dto.getTotal() != null) {
-            dto.setTotalFormatted(MoneyUtils.formatUSD(dto.getTotal()));
+            dto.setTotalFormatted(MoneyUtils.formatCOP(dto.getTotal()));
         }
 
         return dto;
@@ -112,10 +112,10 @@ public class OrderMapper {
 
         // Formatear valores
         if (dto.getUnitPrice() != null) {
-            dto.setUnitPriceFormatted(MoneyUtils.formatUSD(dto.getUnitPrice()));
+            dto.setUnitPriceFormatted(MoneyUtils.formatCOP(dto.getUnitPrice()));
         }
         if (dto.getLineTotal() != null) {
-            dto.setLineTotalFormatted(MoneyUtils.formatUSD(dto.getLineTotal()));
+            dto.setLineTotalFormatted(MoneyUtils.formatCOP(dto.getLineTotal()));
         }
 
         return dto;
