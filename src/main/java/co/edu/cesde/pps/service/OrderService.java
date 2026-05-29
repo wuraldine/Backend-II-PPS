@@ -148,7 +148,7 @@ public class OrderService {
         cart.setStatus(CartStatus.CONVERTED);
         cart.setUpdatedAt(LocalDateTime.now());
 
-        order = orderRepository.save(order);
+        order = orderRepository.saveAndFlush(order);
 
         return orderMapper.toDTO(order);
     }
